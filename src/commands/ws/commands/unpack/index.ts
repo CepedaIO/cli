@@ -3,7 +3,6 @@ import {run} from "@vlegm/utils";
 import {basename} from "path";
 import {Project} from "../../models/Project";
 import {NormalizedComposeProvider} from "../../../../types";
-import {JSAML} from "@vlegm/utils";
 import chalk from "chalk";
 
 import packageJSON from "./package.json";
@@ -27,9 +26,7 @@ export async function unpack(projectName?: string) {
   const project = await Project.init(name, cwd);
 
   console.log('Installing dependencies...');
-
   packageJSON.dependencies['@vlegm/cli'] = rootDir;
-  console.log(packageJSON);
   await writeFile(`${project.root}/package.json`, JSON.stringify(packageJSON, null, 2));
   await writeFile(`${project.root}/tsconfig.json`, JSON.stringify(tsconfigJSON, null, 2));
 

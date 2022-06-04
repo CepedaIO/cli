@@ -3,3 +3,4 @@ export * from "./RedisService";
 export * from "./PGAdminService";
 export * from "./ServiceFactory";
 export * from "./NodeJSService"
+export * from "./NodeJSSource";

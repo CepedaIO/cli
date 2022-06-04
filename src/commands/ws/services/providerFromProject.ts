@@ -5,7 +5,7 @@ import {
   isServiceProvider,
   NormalizedComposeProvider
 } from "../../../types";
-import {ServiceFactory} from "../docker-services";
+import {NodeJSSource, ServiceFactory} from "../docker-services";
 import {composer} from "./composer";
 
 export function providerFromProject(project: iProject): NormalizedComposeProvider {
