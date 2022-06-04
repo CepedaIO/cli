@@ -25,9 +25,21 @@ register('shell [image] [cmd...]', (program: Command) => {
     .action(shell);
 });
 
-export async function shell(image = 'vlegm/dev-alpine:latest', cmdArr:string[] = [], options:ShellOptions) {
+export async function shell(image = 'dev', cmdArr:string[] = [], options:ShellOptions) {
   const sshDir = normalize(`${homedir()}/.ssh`);
-  const cmd = cmdArr.length === 0 ? '/bin/zsh' : cmdArr.join(' ');
+  let cmd = cmdArr.length === 0 ? '' : cmdArr.join(' ');
+
+  if(image.toLowerCase() === 'dev') {
+    image = 'vlegm/dev-alpine:latest'
+
+    if(!cmd) {
+      cmd = '/bin/zsh';
+    }
+  }
+
+  if(!cmd) {
+    cmd = '/bin/sh';
+  }
 
   log2('image', image);
   log2('cmd', cmd);
