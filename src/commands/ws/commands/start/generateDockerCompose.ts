@@ -1,5 +1,5 @@
 import {
-  CommandOptions,
+  StartOptions,
   ComposeProvider
 } from "../../../../types";
 import {iProject} from "../../models/Project";
@@ -11,7 +11,7 @@ import {DockerCompose} from "../../../../docker-compose";
 import chalk from "chalk";
 import {processVolumes} from "./processVolumes";
 
-export async function generateDockerCompose(project:iProject, config:ComposeProvider, env:string, options:CommandOptions): Promise<DockerCompose> {
+export async function generateDockerCompose(project:iProject, config:ComposeProvider, env:string, options:StartOptions): Promise<DockerCompose> {
   const schemaBuffer = await readFile(`${assetsDir}/docker-compose.schema.json`);
   const schema = JSON.parse(schemaBuffer.toString('utf-8'));
   const compose = {

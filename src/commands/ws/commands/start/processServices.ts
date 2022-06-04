@@ -1,6 +1,6 @@
 import {iProject} from "../../models/Project";
 import {
-  CommandOptions,
+  StartOptions,
   ComposeProvider, Dict,
   DockerService, isServiceProvider,
   Provider,
@@ -69,14 +69,20 @@ async function processService(project:iProject, provider:ServiceProvider, contex
   return service;
 }
 
-export async function processServices(project:iProject, env:string, provider: ComposeProvider, commandOptions:CommandOptions): Promise<Dict<DockerService>> {
+export async function processServices(project:iProject, env:string, provider: ComposeProvider, options:StartOptions): Promise<Dict<DockerService>> {
   let services = {};
+  const excludes = options.exclude.split(',');
+
   for (const [serviceName, serviceProvider] of Object.entries(provider.services || {})) {
+    if(excludes.includes(serviceName)) {
+      break;
+    }
+
     if(isServiceProvider(serviceProvider)) {
       const context:ProviderContext = {
         name: serviceName,
         env,
-        commandOptions
+        options
       };
 
       services[serviceName] = await processService(project, serviceProvider, context);

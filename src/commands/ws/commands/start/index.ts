@@ -2,11 +2,7 @@ import chalk from 'chalk';
 import {run} from "@vlegm/utils";
 import { generateStartFiles } from './generateStartFiles';
 import {getProject} from "../../services/getProject";
-
-export interface StartOptions {
-  build?: boolean;
-  generate?: boolean;
-}
+import {StartOptions} from "../../../../types";
 
 export async function start(service?:string, projectName?: string, options?: StartOptions) {
   const project = await getProject(projectName, service);
@@ -16,11 +12,11 @@ export async function start(service?:string, projectName?: string, options?: Sta
     /**
      * No service provided, start whole project
      */
-    await generateStartFiles(project, environment, options);
+    await generateStartFiles(project, environment, options!);
 
-    if(!options || options.generate !== true) {
+    if(!options || !options.generate) {
       console.log(`Starting project!`);
-      await run('docker-compose', ['up', '-d'], project.root);
+      await run('docker-compose', ['up', '-d', '--remove-orphans'], project.root);
     }
   } else if(service) {
     /**

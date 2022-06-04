@@ -15,6 +15,12 @@ export interface RepoInfo {
   init?: string;
 }
 
+export interface StartOptions {
+  build: boolean;
+  generate: boolean;
+  exclude: string;
+}
+
 export function isRepoReference(obj:any): obj is isRepoReference {
   return typeof obj.repo === "object";
 }
@@ -51,7 +57,7 @@ export interface CommandOptions {
 export interface ProviderContext {
   name: string;
   env: string;
-  commandOptions: CommandOptions;
+  options: StartOptions;
 }
 
 export interface ComposeProvider {

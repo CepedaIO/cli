@@ -11,14 +11,14 @@ import { exec } from "./commands/exec";
 import {tail} from "./commands/tail";
 import {restart} from "./commands/restart";
 
-
 register('ws', (program: Command) => {
   program.description('Workstation tool helps you set up docker environments')
 
   program.command('start [service] [project]')
     .description('Start docker service(s)')
-    .option('-b, --build', "Force project to build itself")
-    .option('-g, --generate', "Only generate startup files, do not start")
+    .option('-b, --build', "Force project to build itself", false)
+    .option('-g, --generate', "Only generate startup files, do not start", false)
+    .option('-e, --exclude <service-names>', 'Comma delimited list of service names', '')
     .action(start);
 
   program.command('restart [service] [project]')

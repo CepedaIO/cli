@@ -5,8 +5,7 @@ import { createHash } from "crypto";
 import { JSAML, run } from "@vlegm/utils";
 import chalk from "chalk";
 import { generateDockerCompose } from "./generateDockerCompose"
-import { ComposeProvider } from "../../../../types";
-import {StartOptions} from "./index";
+import {ComposeProvider, StartOptions} from "../../../../types";
 import {writeFile} from "fs/promises";
 
 const { readFile } = promises;
@@ -22,7 +21,7 @@ function needsRebuild(hash: string, project: iProject) {
     !existsSync(`${project.root}/docker-compose.yaml`);
 }
 
-export async function generateStartFiles(project: iProject, environment = 'master', options: StartOptions = {}) {
+export async function generateStartFiles(project: iProject, environment = 'master', options: StartOptions) {
   const file = await readFile(composeProviderTSURL(project));
   const hashSum = createHash('sha256');
 
@@ -32,7 +31,7 @@ export async function generateStartFiles(project: iProject, environment = 'maste
   const branch = isTest ? 'master' : environment;
   console.log(`Hash: ${chalk.blueBright(hash)}`);
 
-  if(needsRebuild(hash, project) || options.build === true) {
+  if(needsRebuild(hash, project) || options.build) {
     console.log('Compose changed, building environment');
     await run('yarn', ['build'], {
       cwd: project.root,
@@ -45,9 +44,7 @@ export async function generateStartFiles(project: iProject, environment = 'maste
     console.log(`Configuring for: ${chalk.greenBright(branch)}`);
     const provider:ComposeProvider = require(`${project.root}/dist/compose-provider.js`).default;
 
-    const dockerCompose = await generateDockerCompose(project, provider, 'local', {
-      test: isTest
-    });
+    const dockerCompose = await generateDockerCompose(project, provider, 'local', options);
 
     if(provider.env) {
       console.log('Creating .env file');
