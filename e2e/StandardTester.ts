@@ -15,7 +15,7 @@ export interface ServiceSpec {
   name: string;
   type: 'node';
   tail?: string[];
-  test?: () => void;
+  test?: () => Promise<void>;
 }
 
 interface StandardTesterOptions {
@@ -174,11 +174,13 @@ export class StandardTester {
     }
 
     return _it('should test that services are running', async function() {
-      services.forEach((service) => {
+      const tests = services.map(async (service) => {
         if(service.test) {
-          service.test();
+          await service.test();
         }
       });
+
+      await Promise.all(tests);
     }, options);
   }
 
@@ -191,12 +193,11 @@ export class StandardTester {
     return _it('should tail services for output', async function() {
       for(const serviceSpec of services) {
         if(serviceSpec.tail) {
-          const user = new _MockCLIUser('vlm', ['ws', 'tail', serviceSpec.name, 'tmp'], options);
+          const user = new _MockCLIUser('vlm', ['ws', 'tail', '--peek', serviceSpec.name, 'tmp'], options);
 
           user.specTimeout = 3000;
 
           await user.test(serviceSpec.tail);
-          await user.waitTillDone();
         }
       }
 

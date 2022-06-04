@@ -32,6 +32,7 @@ register('ws', (program: Command) => {
 
   program.command('tail <service> [project]')
     .description('Tail logs for service')
+    .option('-p, --peek', 'Just peek at, do not tail logs', false)
     .action(tail);
 
   program.command('stop [service] [project]')
