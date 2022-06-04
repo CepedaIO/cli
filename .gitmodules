@@ -1,0 +1,3 @@
+[submodule "e2e/repos/server"]
+	path = e2e/repos/server
+	url = git@github.com:vlegm/cli-server.git

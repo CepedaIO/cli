@@ -9,11 +9,17 @@ import {Service} from "../docker-services";
 import {composer} from "./composer";
 
 export function providerFromProject(project: iProject): NormalizedComposeProvider {
-  const allExports = require(`${project.root}/.dist/compose-provider.js`);
+  return providerFromPath(`${project.root}/.dist/compose-provider.js`);
+}
+
+export function providerFromPath(path:string): NormalizedComposeProvider {
+  console.log(1)
+  const allExports = require(path);
   const defaultExport = allExports.default ? { ...allExports.default } : {
     version: '3.7'
   };
 
+  console.log(2);
   const services = {};
   const processServiceDefinitions = (obj:Object) => {
     for(const [serviceName, serviceDef] of Object.entries(obj)) {
@@ -25,12 +31,14 @@ export function providerFromProject(project: iProject): NormalizedComposeProvide
     }
   }
 
+  console.log(3)
   if(defaultExport.services) {
     processServiceDefinitions(defaultExport.services);
   }
 
+  console.log(4)
   processServiceDefinitions(allExports);
-
+  console.log(5)
   for(const [serviceName, serviceDef] of Object.entries(services)) {
     if(isServiceProvider(serviceDef)) {
       services[serviceName] = new Service(serviceDef);;
@@ -38,7 +46,7 @@ export function providerFromProject(project: iProject): NormalizedComposeProvide
 
     services[serviceName].name = serviceName;
   }
-
+  console.log(6)
   defaultExport.services = services;
   return defaultExport;
 }

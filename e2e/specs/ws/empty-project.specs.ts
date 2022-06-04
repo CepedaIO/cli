@@ -1,9 +1,8 @@
 import {expect} from "chai";
-import {existsSync} from "fs";
 import {MockCLIUser} from "@vlegm/utils";
-import {config} from "../../configs/e2e";
+import {config} from "../../../configs/e2e";
 
-describe.skip('ws.init - Project with git repo ', () => {
+describe.skip('ws.init - Empty Project', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
     const user = new MockCLIUser('vlm', ['ws', 'init', config.project], {
@@ -12,10 +11,7 @@ describe.skip('ws.init - Project with git repo ', () => {
 
     await user.test([
       ['Use a config file?', 'n'],
-      ['Add git repos?', 'y'],
-      ['Git repo', 'git@github.com:vlegm/cli.git'],
-      ['Initialization command:'],
-      ['Git repo'],
+      ['Add git repos?', 'n'],
       ['Predefined Services:'],
       ['Add environment variables?','n'],
       ['Create your workstation?', 'y'],
@@ -26,14 +22,16 @@ describe.skip('ws.init - Project with git repo ', () => {
     await user.waitTillDone();
   });
 
-  it('should see initialized git repo', async function () {
+  it('should be seen in projects', async function() {
     this.timeout(0);
-    const projectDir = `${config.tmpDir}/${config.project}`;
+    const user = new MockCLIUser('vlm', ['ws', 'projects'], {
+      cwd: config.tmpDir
+    });
 
-    expect(existsSync(projectDir)).to.be.true;
-    expect(existsSync(`${projectDir}/cli`)).to.be.true;
-    expect(existsSync(`${projectDir}/cli/node_modules`)).to.be.true;
-    expect(existsSync(`${projectDir}/cli/.git`)).to.be.true;
+    const output = await user.nextMessage();
+    expect(output.includes(config.project)).to.be.true;
+
+    await user.waitTillDone();
   });
 
   it('should remove project', async function() {
@@ -43,9 +41,21 @@ describe.skip('ws.init - Project with git repo ', () => {
     });
 
     await user.test([
-      ['Are you sure you want to delete?', 'y', `${config.project} has been removed!`],
+      ['Are you sure you want to delete?', 'y'],
       ['Would you also like to delete the project\'s directory?', 'y']
     ]);
+
+    await user.waitTillDone();
+  });
+
+  it('should no longer be seen in projects', async function() {
+    this.timeout(0);
+    const user = new MockCLIUser('vlm', ['ws', 'projects'], {
+      cwd: config.tmpDir
+    });
+
+    const output = await user.nextMessage();
+    expect(output.includes(config.project)).to.be.false;
 
     await user.waitTillDone();
   });

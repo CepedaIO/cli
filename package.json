@@ -13,9 +13,9 @@
     "cli": "ts-node --files src/index.ts",
     "build": "tsc",
     "generate": "json2ts assets/docker-compose.schema.json > src/docker-compose.ts",
-    "test": "ts-mocha --exit --require configs/unit.ts src/**/*.specs.ts",
-    "e2e": "ts-mocha e2e/**/*.specs.ts",
-    "test:watch": "ts-mocha -w --watch-extensions ts --require configs/unit.ts src/**/*.specs.ts",
+    "test": "mocha --exit --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
+    "e2e": "mocha --require ts-node/register e2e/specs/**/*.specs.ts",
+    "test:watch": "mocha -w --watch-extensions ts --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
     "prepublishOnly": "yarn build"
   },
   "files": [
@@ -40,7 +40,6 @@
     "chai-string": "^1.5.0",
     "ejs": "^3.1.6",
     "mocha": "^9.1.3",
-    "ts-mocha": "^8.0.0",
     "ts-node": "^10.2.1",
     "tsc": "^2.0.3",
     "typescript": "^4.3.5"

@@ -1,10 +1,10 @@
 import {config} from "../configs/e2e";
-import {cleanup, expectExists, setup} from "./utils";
-import {readdir} from "fs/promises";
+import {cleanup, getProviderFromPath, setup} from "./utils";
 import {expect} from "chai";
 import {MockCLIUser} from "@vlegm/utils";
 import {copyFiles} from "../dist/commands/ws/services/copyFiles";
 import {AsyncFunc} from "mocha";
+import {NormalizedComposeProvider} from "../dist";
 
 interface RunOptions {
   output?: boolean;
@@ -23,7 +23,7 @@ class _MockCLIUser extends MockCLIUser {
   ) {
     super(command, args, {
       cwd: config.tmpDir,
-      output: options.output === true ? console.log : null
+      output: options.output === true ? console.log : undefined
     });
   }
 }
@@ -38,12 +38,17 @@ function _it(title:string, cb:AsyncFunc, options:RunOptions) {
 }
 
 export class StandardTester {
+  provider: NormalizedComposeProvider;
+
   constructor(
     public tmpDir: string,
     public testDir: string,
     public options: StandardTesterOptions = {}
   ) {
-    before(async () => {
+    const self = this;
+
+    before(async function() {
+      this.timeout(0);
       if(options.skipCleanup !== true) {
         await cleanup();
       }
@@ -52,13 +57,17 @@ export class StandardTester {
       await copyFiles([
         `${testDir}/compose-provider.ts`
       ], tmpDir);
+
+     await getProviderFromPath(`${tmpDir}/compose-provider.ts`);
+      console.log(9);
+      //self.provider = provider;
     });
   }
 
-  shouldUnpackProject(specs: {
-    numberOfServices?: number
-  } = {}, options: RunOptions = {}) {
+  shouldUnpackProject(options: RunOptions = {}) {
+    const self = this;
     return _it('should initialize workstation', async function () {
+      /*
       const user = new _MockCLIUser('vlm', ['ws', 'unpack'], options);
 
       await user.waitTillDone();
@@ -73,7 +82,21 @@ export class StandardTester {
       ], config.tmpDir);
 
       const files = await readdir(`${config.tmpDir}/services`);
-      expect(files.length).to.equal(specs.numberOfServices || 0, `There are ${specs.numberOfServices || 0} services`);
+      expect(files.length).to.equal(specs.services?.length || 0, `There are ${specs.services?.length || 0} services`);
+*/
+      console.log(9);
+      console.log(self.provider);
+      /*
+      specs.services.forEach((service) => {
+        if(service.type === "node") {
+          const servicePath = `${config.tmpDir}/services/${service.name}`;
+
+          expectExists([
+            `node_modules`,
+            `yarn.lock`
+          ], servicePath);
+        }
+      })*/
     }, options);
   }
 
