@@ -1,12 +1,15 @@
 import {existsSync} from "fs";
 import {run} from "@vlegm/utils";
-import {basename, normalize} from "path";
-import {Project} from "../models/Project";
-import {assetsDir} from "../../../config/app";
-import {copyFiles} from "../services/copyFiles";
-import {ComposeProvider} from "../../../types";
-import {createRepos} from "./init/createRepos";
+import {basename} from "path";
+import {Project} from "../../models/Project";
+import {ComposeProvider} from "../../../../types";
+import {createRepos} from "../init/createRepos";
 import chalk from "chalk";
+
+import packageJSON from "./package.json";
+import ownPackageJSON from "../../../../../package.json";
+import tsconfigJSON from "./tsconfig.json";
+import {writeFile} from "fs/promises";
 
 export async function unpack(projectName?: string) {
   if(!existsSync('./compose-provider.ts')) {
@@ -19,11 +22,13 @@ export async function unpack(projectName?: string) {
 
   const project = await Project.init(name, cwd);
 
+  console.log('before?');
   console.log('Installing dependencies...');
-  await copyFiles([
-    normalize(`${assetsDir}/tsconfig.json`),
-    normalize(`${assetsDir}/package.json`)
-  ], project.root);
+  packageJSON.dependencies['@vlegm/cli'] = ownPackageJSON.version;
+  console.log(packageJSON);
+  console.log('hello?');
+  await writeFile(`${project.root}/package.json`, JSON.stringify(packageJSON));
+  await writeFile(`${project.root}/tsconfig.json`, JSON.stringify(tsconfigJSON));
 
   await run('yarn', ['install'], {
     cwd: project.root,
