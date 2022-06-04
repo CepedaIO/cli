@@ -17,7 +17,9 @@ describe.only('ws - Project with NodeJS service', () => {
         expect(resp.data).to.equal('Hello World!');
       }
     }
-  ]);
+  ], {
+    skipCleanup: true
+  });
 
   standardTester.shouldUnpackProject();
 
@@ -31,5 +33,5 @@ describe.only('ws - Project with NodeJS service', () => {
 
   standardTester.shouldExcludeService({
     serviceName: 'server'
-  }, { flags:"skip" })
+  }, { flags:"only" })
 });
