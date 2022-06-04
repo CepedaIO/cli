@@ -8,13 +8,14 @@ import {readdir} from "fs/promises";
 
 interface RunOptions {
   output?: boolean;
-  flags?: 'skip' | 'only' | ''
+  flags?: 'skip' | 'only' | '';
 }
 
 export interface ServiceSpec {
-  name: string,
-  type: 'node',
-  tail?: string[]
+  name: string;
+  type: 'node';
+  tail?: string[];
+  test?: () => void;
 }
 
 interface StandardTesterOptions {
@@ -47,6 +48,7 @@ export class StandardTester {
   constructor(
     public tmpDir: string,
     public testDir: string,
+    public services?: ServiceSpec[],
     public options: StandardTesterOptions = {}
   ) {
     before(async function() {
@@ -62,9 +64,8 @@ export class StandardTester {
     });
   }
 
-  shouldUnpackProject(specs: {
-    services?: ServiceSpec[]
-  } = {},options: RunOptions = {}) {
+  shouldUnpackProject(options: RunOptions = {}) {
+    const services = this.services;
     return _it('should initialize workstation', async function () {
       const user = new _MockCLIUser('vlm', ['ws', 'unpack'], options);
 
@@ -80,10 +81,10 @@ export class StandardTester {
       ], config.tmpDir);
 
       const files = await readdir(`${config.tmpDir}/services`);
-      expect(files.length).to.equal(specs.services?.length || 0, `There are ${specs.services?.length || 0} services`);
+      expect(files.length).to.equal(services?.length || 0, `There are ${services?.length || 0} services`);
 
-      if(specs.services) {
-        specs.services.forEach((service) => {
+      if(services) {
+        services.forEach((service) => {
           if(service.type === "node") {
             const servicePath = `${config.tmpDir}/services/${service.name}`;
 
@@ -166,11 +167,29 @@ export class StandardTester {
     }, options);
   }
 
-  shouldTailServices(specs: {
-    services: ServiceSpec[]
-  }, options:RunOptions = {}) {
+  shouldTestForRunningServices(options:RunOptions = {}) {
+    const services = this.services;
+    if(!services) {
+      return;
+    }
+
+    return _it('should test that services are running', async function() {
+      services.forEach((service) => {
+        if(service.test) {
+          service.test();
+        }
+      });
+    }, options);
+  }
+
+  shouldTailServices(options:RunOptions = {}) {
+    const services = this.services;
+    if(!services) {
+      return;
+    }
+
     return _it('should tail services for output', async function() {
-      for(const serviceSpec of specs.services) {
+      for(const serviceSpec of services) {
         if(serviceSpec.tail) {
           const user = new _MockCLIUser('vlm', ['ws', 'tail', serviceSpec.name, 'tmp'], options);
 

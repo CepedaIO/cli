@@ -14,6 +14,7 @@ export async function setup() {
 
 export async function cleanup() {
   await rm(config.tmpDir, { recursive: true, force: true });
+  await rm(config.tmpDataDir, { recursive: true, force: true });
 }
 
 export function expectExists(urls: string[], relative?: string) {

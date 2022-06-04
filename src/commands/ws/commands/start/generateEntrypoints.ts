@@ -97,6 +97,7 @@ export async function generateEntrypoint(project:iProject, provider: NormalizedC
         const lines = await generateEntrypointLines(project, serviceDef, context);
         const entrypointName = `${context.name}-entrypoint.sh`;
         const entrypointPath = normalize(`${distDir(project.root)}/${entrypointName}`);
+        console.log('Writing entrypoint:', lines);
         await writeFile(entrypointPath, lines.join('\n'));
         await chmod(entrypointPath, "755");
       }

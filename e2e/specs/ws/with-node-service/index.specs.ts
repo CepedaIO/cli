@@ -1,27 +1,35 @@
 import {config} from "../../../../configs/e2e";
-import {ServiceSpec, StandardTester} from "../../../StandardTester";
+import {StandardTester} from "../../../StandardTester";
 
-describe.only('ws - Project with NodeJS service', () => {
-  let standardTester:StandardTester = new StandardTester(config.tmpDir, __dirname, { skipCleanup: true });
-  const services:ServiceSpec[] = [
+describe('ws - Project with NodeJS service', () => {
+  let standardTester:StandardTester = new StandardTester(config.tmpDir, __dirname, [
     {
       name:'server',
       type:'node',
       tail: [
         'yarn install',
-        'Hello World!',
+        'Listening: 8080',
       ]
     }
-  ];
+  ], {
+    skipCleanup: false
+  });
 
-  standardTester.shouldUnpackProject({ services });
-
-  standardTester.shouldBeAbleToStart();
-
-  standardTester.shouldTailServices({
-    services
-  }, {
-    output: true,
+  standardTester.shouldUnpackProject({
     flags: "only"
+  });
+
+  standardTester.shouldBeAbleToStart({
+    flags: ""
+  });
+
+  standardTester.shouldTestForRunningServices({
+    flags: ""
+  })
+
+  standardTester.shouldTailServices();
+
+  standardTester.shouldExcludeService({
+    serviceName: 'server'
   })
 });
