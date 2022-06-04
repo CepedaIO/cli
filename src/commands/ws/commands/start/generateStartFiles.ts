@@ -33,8 +33,7 @@ export async function generateStartFiles(project: iProject, options: StartOption
   const hashSum = createHash('sha256');
   hashSum.update(file);
   const hash = hashSum.digest('hex');
-  console.log(`Hasher: ${chalk.blueBright(hash)}`);
-  //setTimeout(() => {}, 5000);
+  console.log(`Hash: ${chalk.blueBright(hash)}`);
 
   if(needsRebuild(project, hash) || options.build) {
     console.log('Compose changed, building environment: OH YEA!');
@@ -51,11 +50,10 @@ export async function generateStartFiles(project: iProject, options: StartOption
     await Project.save(project);
 
     const provider:NormalizedComposeProvider = providerFromProject(project);
-    /*addSources(composer, provider);/*
+    addSources(composer, provider);
     await createSources(project, composer);
-    console.log('after create sources');
     options.hasEnvFile = await generateEnv(project, provider, options);
     await generateDockerCompose(project, provider, options);
-    await generateEntrypoint(project, provider, options);*/
+    await generateEntrypoint(project, provider, options);
   }
 }

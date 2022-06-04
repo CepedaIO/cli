@@ -87,20 +87,21 @@ async function generateEntrypointLines(project:iProject, instance: BaseService, 
 
 export async function generateEntrypoint(project:iProject, provider: NormalizedComposeProvider, options: StartOptions) {
   for(const [serviceName, serviceDef] of Object.entries(provider.services)) {
-    if(serviceDef instanceof BaseService) {
-      const context:ProviderContext = {
-        name: serviceName,
-        options
-      };
+    if(!serviceDef) {
+      break;
+    }
 
-      if(serviceDef.needsEntrypoint(context)) {
-        const lines = await generateEntrypointLines(project, serviceDef, context);
-        const entrypointName = `${context.name}-entrypoint.sh`;
-        const entrypointPath = normalize(`${distDir(project.root)}/${entrypointName}`);
-        console.log('Writing entrypoint:', lines);
-        await writeFile(entrypointPath, lines.join('\n'));
-        await chmod(entrypointPath, "755");
-      }
+    const context:ProviderContext = {
+      name: serviceName,
+      options
+    };
+
+    if(serviceDef.needsEntrypoint(context)) {
+      const lines = await generateEntrypointLines(project, serviceDef, context);
+      const entrypointName = `${context.name}-entrypoint.sh`;
+      const entrypointPath = normalize(`${distDir(project.root)}/${entrypointName}`);
+      await writeFile(entrypointPath, lines.join('\n'));
+      await chmod(entrypointPath, "755");
     }
   }
 }

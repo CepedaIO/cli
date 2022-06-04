@@ -7,17 +7,14 @@ import {
 } from "../../../types";
 import {Service} from "../docker-services";
 import {composer} from "./composer";
-import {normalize} from "path";
 
 export function providerFromProject(project: iProject): NormalizedComposeProvider {
   return providerFromPath(`${project.root}/.dist/compose-provider.js`);
 }
 
 export function providerFromPath(path:string): any {
-  const normalized = normalize(path);
-  console.log('path', normalized);
-  const allExports = require(normalized);
-  /*const defaultExport = allExports.default ? { ...allExports.default } : {
+  const allExports = require(path);
+  const defaultExport = allExports.default ? { ...allExports.default } : {
     version: '3.7'
   };
 
@@ -45,5 +42,5 @@ export function providerFromPath(path:string): any {
     services[serviceName].name = serviceName;
   }
   defaultExport.services = services;
-  return defaultExport;*/
+  return defaultExport;
 }

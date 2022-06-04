@@ -1,4 +1,5 @@
 import { DockerService, DockerVolume } from "./docker-compose";
+import {BaseService} from "./commands/ws/docker-services";
 
 export * from "./docker-compose";
 
@@ -79,15 +80,11 @@ export interface ComposeProvider {
 }
 
 export interface NormalizedComposeProvider extends ComposeProvider {
-  services: Dict<NormalizedServiceInstance>;
+  services: Dict<BaseService>;
 }
 
 export interface ServiceInstance {
   env?(context: ProviderContext): Dict<string | number>;
   service(context: ProviderContext): DockerService;
   volumes?(context:ProviderContext): Dict<DockerVolume>;
-}
-
-export interface NormalizedServiceInstance extends ServiceInstance {
-  name: string;
 }

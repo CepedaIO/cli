@@ -41,6 +41,4 @@ export async function createSources(project:iProject, composer:Composer) {
       await Project.save(project);
     }
   }
-
-  console.log('before return');
 }
