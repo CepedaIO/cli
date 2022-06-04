@@ -5,7 +5,6 @@ import {chmod, writeFile} from "fs/promises";
 import {isFunction} from "@vlegm/utils";
 import {entrypointActionsFromLinks} from "./entrypointActionsFromLinks";
 import {tuple} from "./tuple";
-import {removeFields} from "../../services/removeFields";
 
 function resolveProvider<T>(provider: Provider<T> | undefined, context:ProviderContext): T  | undefined {
   if(isFunction(provider)) {
@@ -18,27 +17,27 @@ function resolveProvider<T>(provider: Provider<T> | undefined, context:ProviderC
 function getVolumes(project:iProject, provider: ServiceProvider, context: ProviderContext) {
   const volumes = resolveProvider(provider.volumes as string[], context) || [];
 
-  volumes.push(`./${context.name}:/mnt/host`)
+  volumes.push(`./services/${context.name}:/mnt/host`)
 
   if(provider.links) {
     const linkVolumes = provider.links.map((link) => {
       const [serviceName] = tuple(link);
-      return `${normalize(project.root)}/${serviceName}:/mnt/${serviceName}`;
+      return `./services/${serviceName}:/mnt/${serviceName}`;
     });
     volumes.push.apply(volumes, linkVolumes);
 
     const entrypointName = `${context.name}-entrypoint.sh`;
-    const entrypointPath = normalize(`${project.root}/${entrypointName}`);
+    const entrypointPath = `./dist/${entrypointName}`;
     volumes.push(`${entrypointPath}:/mnt/entrypoint.sh`)
   }
 
   return volumes;
 }
 
-async function generateEntrypointFile(project: iProject, provider: ServiceProvider, service: DockerService) {
+async function generateEntrypointFile(project: iProject, provider: ServiceProvider, service: DockerService, context:ProviderContext) {
   if(provider.links) {
     const entrypointName = `${context.name}-entrypoint.sh`;
-    const entrypointPath = normalize(`${project.root}/${entrypointName}`);
+    const entrypointPath = normalize(`${project.root}/dist/${entrypointName}`);
     const actions = await entrypointActionsFromLinks(project, provider, service);
     await writeFile(entrypointPath, actions.join('\n'));
     await chmod(entrypointPath, "755");
@@ -48,16 +47,16 @@ async function generateEntrypointFile(project: iProject, provider: ServiceProvid
 }
 
 export async function processServiceProvider(project:iProject, provider:ServiceProvider, context:ProviderContext) {
-  const service = removeFields({
+  const service = {
     ...provider,
     volumes: getVolumes(project, provider, context),
     command: resolveProvider(provider.command, context),
     image: resolveProvider(provider.image, context),
-    dockerfile: resolveProvider(provider.dockerfile, context),
+    build: resolveProvider(provider.build, context),
     working_dir: '/mnt/host'
-  }, ['repo', 'links']) as DockerService;
+  } as DockerService;
 
-  await generateEntrypointFile(project, provider, service);
+  await generateEntrypointFile(project, provider, service, context);
 
   return service;
 }

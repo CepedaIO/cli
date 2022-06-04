@@ -12,6 +12,7 @@
     "dev": "npm install -g ./",
     "cli": "ts-node --files src/index.ts",
     "build": "tsc",
+    "generate": "json2ts assets/docker-compose.schema.json > src/docker-compose.ts",
     "test": "ts-mocha --exit --require configs/unit.ts src/**/*.specs.ts",
     "e2e": "ts-mocha e2e/**/*.specs.ts",
     "test:watch": "ts-mocha -w --watch-extensions ts --require configs/unit.ts src/**/*.specs.ts",
@@ -44,6 +45,8 @@
   },
   "dependencies": {
     "@vlegm/utils": "^1.0.1",
+    "ajv": "^8.10.0",
+    "ajv-formats": "^2.1.1",
     "chalk": "^4.1.2",
     "commander": "^8.1.0",
     "diskdb": "^0.1.17",

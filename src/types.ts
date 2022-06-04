@@ -1,4 +1,7 @@
+import { DockerService, DockerVolume } from "./docker-compose";
 import dockerServices from "./commands/ws/dockerServices";
+
+export * from "./docker-compose";
 
 export interface Dict<T> {
   [key: string]: T | undefined;
@@ -28,30 +31,17 @@ export interface WorkstationAnswers {
   env?: Dict<string>;
 }
 
-export type Path = string;
 export type Provider<T> = T | ((context: ProviderContext) => T);
 export type MapAsProvider<T, K extends keyof T> = Omit<T, K> & {
   [Key in K]: Provider<T[K]>
 } & ServiceProviderOptionals;
-
-export interface DockerService {
-  env_file?: Path;
-  tty?: boolean;
-  command?: string | string[];
-  ports?: string[];
-  volumes?: string[];
-  working_dir?: Path;
-  image?: string;
-  dockerfile?: string;
-  entrypoint?: string;
-}
 
 export interface ServiceProviderOptionals {
   repo?: RepoInfo
   links?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
 }
 
-export type ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'dockerfile' | 'volumes'>
+export type ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'build' | 'volumes'>
 export type isRepoReference = RequireBy<ServiceProvider, 'repo'>;
 
 export interface CommandOptions {
@@ -62,16 +52,6 @@ export interface ProviderContext {
   name: string;
   env: string;
   commandOptions: CommandOptions;
-}
-
-export interface DockerVolume {
-
-}
-
-export interface DockerCompose {
-  version: string;
-  services: Dict<DockerService>;
-  volumes?: Dict<DockerVolume>;
 }
 
 export interface ComposeProvider {

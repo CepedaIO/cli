@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "DockerCompose",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DockerCompose",
   "type": "object",
   "required": ["version"],
 
@@ -41,13 +41,12 @@
   "additionalProperties": false,
 
   "definitions": {
-
     "service": {
-      "id": "#/DockerService",
+      "$id": "DockerService",
       "type": "object",
 
       "properties": {
-        "deploy": {"$ref": "#/definitions/deployment"},
+        "deploy": {"$ref": "DockerDeployment"},
         "build": {
           "oneOf": [
             {"type": "string"},
@@ -56,7 +55,7 @@
               "properties": {
                 "context": {"type": "string"},
                 "dockerfile": {"type": "string"},
-                "args": {"$ref": "#/definitions/list_or_dict"}
+                "args": {"$ref": "ListOrDict"}
               },
               "additionalProperties": false
             }
@@ -72,10 +71,10 @@
           ]
         },
         "container_name": {"type": "string"},
-        "depends_on": {"$ref": "#/definitions/list_of_strings"},
+        "depends_on": {"$ref": "ListOfStrings"},
         "devices": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "dns": {"$ref": "#/definitions/string_or_list"},
-        "dns_search": {"$ref": "#/definitions/string_or_list"},
+        "dns": {"$ref": "StringOrList"},
+        "dns_search": {"$ref": "StringOrList"},
         "domainname": {"type": "string"},
         "entrypoint": {
           "oneOf": [
@@ -83,25 +82,24 @@
             {"type": "array", "items": {"type": "string"}}
           ]
         },
-        "env_file": {"$ref": "#/definitions/string_or_list"},
-        "environment": {"$ref": "#/definitions/list_or_dict"},
+        "env_file": {"$ref": "StringOrList"},
+        "environment": {"$ref": "ListOrDict"},
 
         "expose": {
           "type": "array",
           "items": {
-            "type": ["string", "number"],
-            "format": "expose"
+            "type": ["string", "number"]
           },
           "uniqueItems": true
         },
 
         "external_links": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "extra_hosts": {"$ref": "#/definitions/list_or_dict"},
-        "healthcheck": {"$ref": "#/definitions/healthcheck"},
+        "extra_hosts": {"$ref": "ListOrDict"},
+        "healthcheck": {"$ref": "DockerHealthcheck"},
         "hostname": {"type": "string"},
         "image": {"type": "string"},
         "ipc": {"type": "string"},
-        "labels": {"$ref": "#/definitions/list_or_dict"},
+        "labels": {"$ref": "ListOrDict"},
         "links": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
 
         "logging": {
@@ -124,7 +122,7 @@
 
         "networks": {
           "oneOf": [
-            {"$ref": "#/definitions/list_of_strings"},
+            {"$ref": "ListOfStrings"},
             {
               "type": "object",
               "patternProperties": {
@@ -133,7 +131,7 @@
                     {
                       "type": "object",
                       "properties": {
-                        "aliases": {"$ref": "#/definitions/list_of_strings"},
+                        "aliases": {"$ref": "ListOfStrings"},
                         "ipv4_address": {"type": "string"},
                         "ipv6_address": {"type": "string"}
                       },
@@ -152,8 +150,7 @@
         "ports": {
           "type": "array",
           "items": {
-            "type": ["string", "number"],
-            "format": "ports"
+            "type": ["string", "number"]
           },
           "uniqueItems": true
         },
@@ -163,11 +160,11 @@
         "restart": {"type": "string"},
         "security_opt": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
         "shm_size": {"type": ["number", "string"]},
-        "sysctls": {"$ref": "#/definitions/list_or_dict"},
+        "sysctls": {"$ref": "ListOrDict"},
         "stdin_open": {"type": "boolean"},
         "stop_signal": {"type": "string"},
         "stop_grace_period": {"type": "string", "format": "duration"},
-        "tmpfs": {"$ref": "#/definitions/string_or_list"},
+        "tmpfs": {"$ref": "StringOrList"},
         "tty": {"type": "boolean"},
         "ulimits": {
           "type": "object",
@@ -190,13 +187,22 @@
         },
         "user": {"type": "string"},
         "userns_mode": {"type": "string"},
+        "volumes": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {"$ref": "DockerServiceVolume"},
+              { "type": "string" }
+            ]
+          }
+        },
         "working_dir": {"type": "string"}
       },
       "additionalProperties": false
     },
 
     "healthcheck": {
-      "id": "#/DockerHealthcheck",
+      "$id": "DockerHealthcheck",
       "type": "object",
       "properties": {
         "interval": {"type":"string"},
@@ -213,12 +219,12 @@
       "additionalProperties": false
     },
     "deployment": {
-      "id": "#/DockerDeployment",
+      "$id": "DockerDeployment",
       "type": "object",
       "properties": {
         "mode": {"type": "string"},
         "replicas": {"type": "integer"},
-        "labels": {"$ref": "#/definitions/list_or_dict"},
+        "labels": {"$ref": "ListOrDict"},
         "update_config": {
           "type": "object",
           "properties": {
@@ -233,8 +239,8 @@
         "resources": {
           "type": "object",
           "properties": {
-            "limits": {"$ref": "#/definitions/resource"},
-            "reservations": {"$ref": "#/definitions/resource"}
+            "limits": {"$ref": "DockerResource"},
+            "reservations": {"$ref": "DockerResource"}
           }
         },
         "restart_policy": {
@@ -259,7 +265,7 @@
     },
 
     "resource": {
-      "id": "#/DockerResource",
+      "$id": "DockerResource",
       "type": "object",
       "properties": {
         "cpus": {"type": "string"},
@@ -269,7 +275,7 @@
     },
 
     "network": {
-      "id": "#/DockerNetwork",
+      "$id": "DockerNetwork",
       "type": "object",
       "properties": {
         "driver": {"type": "string"},
@@ -303,13 +309,13 @@
           },
           "additionalProperties": false
         },
-        "labels": {"$ref": "#/definitions/list_or_dict"}
+        "labels": {"$ref": "ListOrDict"}
       },
       "additionalProperties": false
     },
 
     "volume": {
-      "id": "#/DockerVolume",
+      "$id": "DockerVolume",
       "type": "object",
       "properties": {
         "driver": {"type": "string"},
@@ -324,26 +330,65 @@
           "properties": {
             "name": {"type": "string"}
           }
+        },
+        "labels": {"$ref": "ListOrDict"}
+      },
+      "additionalProperties": false
+    },
+
+    "serviceVolume": {
+      "$id": "DockerServiceVolume",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["volume", "bind", "tmpfs", "npipe"]
+        },
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "read_only": { "type": "boolean" },
+        "bind": {
+          "type": "object",
+          "properties": {
+            "propagation": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "volume": {
+          "type": "object",
+          "properties": {
+            "nocopy": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "tmpfs": {
+          "type": "object",
+          "properties": {
+            "size": { "type": "number" }
+          },
+          "additionalProperties": false
         }
       },
-      "labels": {"$ref": "#/definitions/list_or_dict"},
       "additionalProperties": false
     },
 
     "string_or_list": {
+      "$id": "StringOrList",
       "oneOf": [
         {"type": "string"},
-        {"$ref": "#/definitions/list_of_strings"}
+        {"$ref": "ListOfStrings"}
       ]
     },
 
     "list_of_strings": {
+      "$id": "ListOfStrings",
       "type": "array",
       "items": {"type": "string"},
       "uniqueItems": true
     },
 
     "list_or_dict": {
+      "$id": "ListOrDict",
       "oneOf": [
         {
           "type": "object",
@@ -360,7 +405,6 @@
 
     "constraints": {
       "service": {
-        "id": "#/definitions/constraints/service",
         "anyOf": [
           {"required": ["build"]},
           {"required": ["image"]}
