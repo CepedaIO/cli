@@ -26,10 +26,6 @@ function projectURL(name:string) {
   return `${dataURL(name)}/project.json`;
 }
 
-export function getServiceRoot(project:iProject, serviceName: string) {
-  return `${project.services.root}/${serviceName}`;
-}
-
 export const Project = {
   async init(name: string, _root?: string) {
     const root = normalize(_root ? _root : getRoot(name));

@@ -191,18 +191,12 @@ export class StandardTester {
 
           await user.test(actions.tail);
           user.process.kill(9);
-
-          if(options.verbose) {
-            console.log(chalk.greenBright(`${service}:`), 'Tail successful!');
-          }
         }
 
         if (actions.afterStart) {
           try {
             await actions.afterStart()
-            console.log(chalk.greenBright(`${service}:`), 'After start successful!');
           } catch (error) {
-            console.log(chalk.redBright(`${service}:`), 'After start failed');
             errors.push({
               service, error
             });

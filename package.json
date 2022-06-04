@@ -55,6 +55,7 @@
     "chalk": "^4.1.2",
     "commander": "^8.1.0",
     "ejs": "^3.1.6",
+    "global": "^4.4.0",
     "inquirer": "^8.1.2",
     "json-schema-to-typescript": "^10.1.5",
     "lodash.filter": "^4.6.0",

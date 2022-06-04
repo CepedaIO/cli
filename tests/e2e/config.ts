@@ -10,7 +10,6 @@ const { mkdir } = promises;
 
 const rootDir = normalize(`${__dirname}/../../`);
 export const config = {
-  project: 'test-project',
   rootDir,
   tmpDir: normalize(`${rootDir}/tmp`),
   vlmDataDir: normalize(`${homedir()}/.vlm`),

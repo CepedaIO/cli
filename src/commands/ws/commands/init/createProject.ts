@@ -1,28 +1,24 @@
 import {promises} from "fs";
-import { normalize, basename } from "path";
-import {assetsDir} from "../../../../configs/app";
+import {join} from "path";
+import {rootDir} from "../../../../configs/app";
 import {createComposeProvider} from "./createComposeProvider";
-import { run } from "@vlegm/utils";
-import {getRoot} from "../../services/getRoot";
+import {run} from "@vlegm/utils";
 import {WorkstationAnswers} from "../../../../types";
+import packageJSON from "../unpack/package.json";
+import tsconfigJSON from "../unpack/tsconfig.json";
 
-const { writeFile, mkdir, copyFile } = promises;
-
-async function copyFiles(urls: string[], dest:string) {
-  return Promise.all(urls.map((url) => copyFile(url, `${dest}/${basename(url)}`)));
-}
+const { writeFile, mkdir } = promises;
 
 export async function createProject(answers: WorkstationAnswers) {
-  const root = getRoot(answers.name);
+  const root = join(process.cwd(), answers.name);
   await mkdir(root, { recursive: true });
 
   const compose = await createComposeProvider(answers);
   await writeFile(`${root}/compose-provider.ts`, compose);
 
-  await copyFiles([
-    normalize(`${assetsDir}/tsconfig.json`),
-    normalize(`${assetsDir}/package.json`)
-  ], root);
+  packageJSON.dependencies['@vlegm/cli'] = rootDir;
+  await writeFile(`${root}/package.json`, JSON.stringify(packageJSON, null, 2));
+  await writeFile(`${root}/tsconfig.json`, JSON.stringify(tsconfigJSON, null, 2));
 
   await run('yarn', ['install'], {
     cwd: root,

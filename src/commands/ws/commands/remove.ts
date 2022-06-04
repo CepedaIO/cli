@@ -17,7 +17,6 @@ export async function remove(projectName: string) {
     return;
   }
 
-  await stop(undefined, project.name);
   await Project.remove(projectName);
 
   const defaultProject = await Application.defaultProject();
