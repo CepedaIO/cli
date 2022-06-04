@@ -12,20 +12,20 @@ export async function start(serviceName?:string, projectName?: string, options?:
   options.env = 'local';
 
   await generateStartFiles(project, options);
-/*
+
   if(serviceExists(serviceName, project)) {
     /**
      * service provided, restart for service
-     *
+     */
     console.log(`Starting service: ${chalk.yellow(serviceName)}`);
     await run('docker-compose', ['up', '-d', serviceName], project.root);
   } else {
     /**
      * No service provided, start whole project
-     *
+     */
     if(!options.generate) {
       console.log(`Starting project!`);
       await run('docker-compose', ['up', '-d', '--remove-orphans'], project.root);
     }
-  }*/
+  }
 }

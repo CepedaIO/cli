@@ -20,7 +20,7 @@ describe('ws - Project with NodeJS service', () => {
   });
 
   standardTester.shouldBeAbleToStart({
-    flags: ""
+    flags: "only"
   });
 
   standardTester.shouldTestForRunningServices({

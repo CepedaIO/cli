@@ -1,4 +1,5 @@
 import { DockerService, DockerVolume } from "./docker-compose";
+import {iProject} from "./commands/ws/models/Project";
 
 export * from "./docker-compose";
 
@@ -39,6 +40,10 @@ export function isServiceProvider(obj:any): obj is ServiceProvider {
 
 export function isServiceInstance(obj:any): obj is iServiceFactory {
   return obj.env && obj.service;
+}
+
+export function isEntrypointFactory(obj: any): obj is iEntrypointFactory {
+  return typeof obj.needsEntrypoint === 'function' && typeof obj.entrypointLines === 'function';
 }
 
 export interface WorkstationAnswers {
@@ -87,4 +92,9 @@ export interface iServiceFactory {
   env?(context: ProviderContext): Dict<string | number>;
   service(context: ProviderContext): DockerService;
   volumes?(context:ProviderContext): Dict<DockerVolume>;
+}
+
+export interface iEntrypointFactory {
+  needsEntrypoint(context: ProviderContext): boolean;
+  entrypointLines(project:iProject, context: ProviderContext): Promise<string[]>;
 }

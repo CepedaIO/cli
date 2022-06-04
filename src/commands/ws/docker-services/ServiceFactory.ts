@@ -4,7 +4,7 @@ import {
   FieldProvider,
   ProviderContext, RepoInfo,
   iServiceFactory,
-  ServiceProvider,
+  ServiceProvider, iEntrypointFactory,
 } from "../../../types";
 import {isFunction} from "@vlegm/utils";
 import {composer} from "../services/composer";
@@ -24,7 +24,7 @@ export function resolveField<T>(fieldProvider:FieldProvider<T>, context:Provider
 function getVolumes(serviceInst: ServiceFactory, context: ProviderContext) {
   const volumes = resolveField(serviceInst.provider.volumes, context) || [];
 
-  if(composer.getSources().has(serviceInst.name)) {
+  if(serviceInst.source) {
     volumes.push(`./services/${serviceInst.name}:/mnt/host`)
   }
 
@@ -48,11 +48,7 @@ function getVolumes(serviceInst: ServiceFactory, context: ProviderContext) {
   return volumes;
 }
 
-export function isBaseService(obj:any): obj is ServiceFactory  {
-  return obj.prototype && obj.prototype instanceof ServiceFactory;
-}
-
-export class ServiceFactory implements iServiceFactory {
+export class ServiceFactory implements iServiceFactory, iEntrypointFactory {
   public name!: string;
 
   constructor(

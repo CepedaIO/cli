@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { buildProgram } from './utils/register';
-import { rootDir } from './config/app';
+import { srcDir } from './config/app';
 import {init} from "./scripts/init";
 
 init().then(() => {
-  const program = buildProgram(`${rootDir}/commands`, ['shell', 'ws', 'vue']);
+  const program = buildProgram(`${srcDir}/commands`, ['shell', 'ws', 'vue']);
 
   program.parseAsync(process.argv)
     .catch(console.error);

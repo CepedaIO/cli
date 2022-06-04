@@ -2,8 +2,8 @@ import {normalize} from 'path';
 import {homedir} from "os";
 import {iProject} from "../commands/ws/models/Project";
 
-export const rootDir = normalize(`${__dirname}/..`);
-export const projectDir = normalize(`${__dirname}/../..`);
+export const srcDir = normalize(`${__dirname}/..`);
+export const rootDir = normalize(`${__dirname}/../..`);
 export const assetsDir = normalize(`${__dirname}/../../assets`);
 export const dataDir = normalize(`${homedir()}/.vlm`);
 export function distDir(projectRoot:string) {

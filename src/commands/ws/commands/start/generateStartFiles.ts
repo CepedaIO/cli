@@ -36,7 +36,7 @@ export async function generateStartFiles(project: iProject, options: StartOption
   console.log(`Hash: ${chalk.blueBright(hash)}`);
 
   if(needsRebuild(project, hash) || options.build) {
-    console.log('Compose changed, building environment: OH YEA!');
+    console.log('Compose changed, building environment');
 
     if(existsSync(distDir(project.root))) {
       await rm(distDir(project.root), { recursive: true });

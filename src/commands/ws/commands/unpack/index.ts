@@ -9,7 +9,7 @@ import chalk from "chalk";
 import packageJSON from "./package.json";
 import tsconfigJSON from "./tsconfig.json";
 import {writeFile} from "fs/promises";
-import {projectDir} from "../../../../config/app";
+import {rootDir} from "../../../../config/app";
 import {providerFromProject} from "../../services/providerFromProject";
 import {addSources} from "../../services/addSources";
 import {composer} from "../../services/composer";
@@ -28,8 +28,8 @@ export async function unpack(projectName?: string) {
 
   console.log('Installing dependencies...');
 
-  const ownPackageJSON = await JSAML.read(`${projectDir}/package.json`) as any;
-  packageJSON.dependencies['@vlegm/cli'] = ownPackageJSON.version;
+  packageJSON.dependencies['@vlegm/cli'] = rootDir;
+  console.log(packageJSON);
   await writeFile(`${project.root}/package.json`, JSON.stringify(packageJSON, null, 2));
   await writeFile(`${project.root}/tsconfig.json`, JSON.stringify(tsconfigJSON, null, 2));
 
