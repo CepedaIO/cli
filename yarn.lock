@@ -146,10 +146,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
-"@vlegm/utils@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@vlegm/utils/-/utils-1.0.1.tgz#23d6b072172900f7dddf0e6fc8f53aa862e84ff0"
-  integrity sha512-llFCwTItK/q0nnSicDUuMSw7XDtvQZvegSQg0rtafFbzoeAzRNYR+dNj1H1QYjd1VZIiB6sJwuuy1fdTashECg==
+"@vlegm/utils@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@vlegm/utils/-/utils-1.0.2.tgz#869d30f810d103ce816988668afc7fed359a0293"
+  integrity sha512-a0tJL3obv58hezfVEE+xxJ0Z0kg9nycyqc5Xgd2dmBx2lvNOlHnLKGT9GvDGApw/nUYGhRTOoH1rBCj1YOCPmw==
   dependencies:
     yaml "^1.10.2"
 

@@ -3,37 +3,58 @@ import { register } from "../utils/register";
 import { Command } from "commander";
 import { homedir } from 'os';
 import { normalize } from 'path';
-import {log1, log2} from "../utils/log";
+import {log1, log2, verbose} from "../utils/log";
 
 interface ShellOptions {
-  hostSrc?: string; // process.cwd()
-  containerDest?: string // /mnt/host
-  ssh?: boolean // false
-  docker?: boolean // false
-  environment?: NodeJS.Dict<string>
+  host: boolean; // false
+  containerDest: string; // /mnt/host
+  ssh: boolean; // false
+  docker: boolean; // false
+  environment?: NodeJS.Dict<string>;
+  include: string;
 }
 
-register('shell [image] [cmd]', (program: Command) => {
+register('shell [image] [cmd...]', (program: Command) => {
   return program.description('Attempt to shell into an image with an auto-removing container')
-    .option('-h, --host-src <hostSrc>', 'Designates which host src to mount into the container', process.cwd())
-    .option('-c, --container-dest <containerDest>', "Designates where host src is mounted within container", '/mnt/host')
+    .option('-h, --host', 'Mounts the current work directory into the container destination', false)
+    .option('-c, --containerDest <containerDest>', 'Change the container destination for host mount', '/mnt/host')
+    .option('-i, --include <include>', 'Mounts comma delimited list of directories, relative to the host source path', '')
     .option('-s, --ssh', "Mount SSH files", false)
     .option('-d, --docker', 'Mount Docker daemon', false)
+    .option('-a, --args', 'Pass through args direction to docker\s run command', '')
     .action(shell);
 });
 
-export async function shell(image = 'vlegm/dev-alpine:latest', cmd = '/bin/zsh', options:ShellOptions = {}) {
+export async function shell(image = 'vlegm/dev-alpine:latest', cmdArr:string[] = [], options:ShellOptions) {
   const sshDir = normalize(`${homedir()}/.ssh`);
-  log2('cmd', cmd);
+  const cmd = cmdArr.length === 0 ? '/bin/zsh' : cmdArr.join(' ');
+
   log2('image', image);
+  log2('cmd', cmd);
 
   const args = [
     '-it',
     '--rm',
-    '-v', `${options.hostSrc}:${options.containerDest}`
+    '-w', options.containerDest
   ];
 
-  if(options.docker === true) {
+  if(options.host) {
+    args.push.apply(args, [
+      '-v', `${process.cwd()}:${options.containerDest}`
+    ])
+  }
+
+  if(options.include) {
+    const relativeMounts = options.include.split(',')
+      .reduce((prev, relativeDir) => {
+        const hostPath = normalize(`${process.cwd()}/${relativeDir}`);
+        return prev.concat('-v', `${hostPath}:${options.containerDest}/${relativeDir}`)
+      }, [] as string[])
+
+    args.push.apply(args, relativeMounts);
+  }
+
+  if(options.docker) {
     log1('Injecting docker');
     args.push.apply(args, [
       '-v', `//var/run/docker.sock:/var/run/docker.sock`,
@@ -41,7 +62,7 @@ export async function shell(image = 'vlegm/dev-alpine:latest', cmd = '/bin/zsh',
     ]);
   }
 
-  if(options.ssh === true) {
+  if(options.ssh) {
     log1('Injecting SSH');
     args.push.apply(args, [
       '-v', `${sshDir}:/mnt/.ssh`
@@ -54,6 +75,8 @@ export async function shell(image = 'vlegm/dev-alpine:latest', cmd = '/bin/zsh',
       args.push(`${key}=${value}`);
     });
   }
+
+  verbose('Args:', ...args);
 
   await run('docker', [
     'run',

@@ -10,12 +10,14 @@
     "vlm": "./dist/cli.js"
   },
   "scripts": {
-    "dev": "npm install -g ./",
-    "cli": "ts-node --files src/cli.ts",
+    "dev": "ts-node --files src/cli.ts",
+    "dev:install": "npm install -g ./",
     "build": "tsc",
+    "build:image": "docker build -t vlegm/cli .",
     "generate": "json2ts assets/docker-compose.schema.json > src/docker-compose.ts",
     "test": "mocha --exit --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
-    "e2e": "mocha --require ts-node/register tests/e2e/specs/**/*.specs.ts",
+    "e2e": "mocha --require ts-node/register 'tests/e2e/specs/**/*.specs.ts'",
+    "e2e:image": "node ./dist/cli shell -d -i src,tests vlegm/cli yarn e2e",
     "test:watch": "mocha -w --watch-extensions ts --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
     "prepublishOnly": "yarn build"
   },
@@ -47,7 +49,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@vlegm/utils": "^1.0.1",
+    "@vlegm/utils": "^1.0.2",
     "ajv": "^8.10.0",
     "ajv-formats": "^2.1.1",
     "chalk": "^4.1.2",
