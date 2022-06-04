@@ -1,3 +1,14 @@
 *.log
 dist
 node_modules
+db.json
+tmp
+.idea
+tmp-test
+tmp-test.yaml
+tmp
+playground
+.data
+/test
+/tests
+.npmrc

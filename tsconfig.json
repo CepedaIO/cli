@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": true,
+    "outDir": "dist",
+    "baseUrl": "src",
+  },
+  "exclude": [
+    "dist",
+    "backups",
+    "repos",
+    "node_modules",
+    "tmp",
+    "e2e",
+    "src/commands/ws/configs"
+  ],
+  "include": [
+    "src"
+  ]
+}

@@ -1,0 +1,36 @@
+import { ComposeProvider, CommandOptions } from "@vlegm/cli";
+
+export default {
+  "version": "3.7",
+  "services": {
+<% for(const [key, service] of Object.entries(services)) { -%>
+    "<%= key %>": {
+  <% for(const [prop, value] of Object.entries(service)) { -%>
+      "<%= prop %>": <%- JSON.stringify(value) %>,
+  <% } -%>
+    },
+<% } -%>
+<% for(const [key, repoService] of Object.entries(repoServices)) { -%>
+    "<%= key %>": {<% -%>
+  <% for(const [prop, value] of Object.entries(repoService)) { -%>
+    <% if(prop === 'command') { %>
+      "command": (env: string, options: CommandOptions) => {
+        return "<%= value %>"
+      },<% -%>
+    <% } else if(prop === 'image') { %>
+      "image": (env: string) => {
+        return "<%= value %>"
+      },<% -%>
+    <% } else { %>
+      "<%= prop %>": <%- JSON.stringify(value) %>, <% -%>
+    <% } -%>
+  <% } %>
+    },
+<% } -%>
+  },
+  "volumes": {
+<% for(const [key, info] of Object.entries(volumes)) { -%>
+    "<%= key %>": <%- JSON.stringify(info) %>,
+<% } -%>
+  }
+} as ComposeProvider
