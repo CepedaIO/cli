@@ -11,6 +11,10 @@ export function addSource(serviceName:string, source: RepoInfo) {
   sources.set(serviceName, source);
 }
 
+export function addNodeJSSource(serviceName: string, url: string, init: string | string[] = 'yarn install') {
+  addSource(serviceName, { url, init });
+}
+
 export function addSources(provider: NormalizedComposeProvider) {
   Object.entries(provider.services)
     .forEach(([serviceName, service]) => {
@@ -35,12 +39,20 @@ export async function createSources(servicesRoot: string): Promise<any> {
       tail = tail
         .then(() => run('git', ['clone', source.url, serviceName], { cwd: servicesRoot }))
         .then(async () => {
-          if(source.init) {
-            const command = source.init.split(' ');
+          const runCommand = async (init:string) => {
+            const command = init.split(' ');
             await run(command[0], command.slice(1), {
               cwd: serviceRoot,
               shell: true
             });
+          }
+
+          if(Array.isArray(source.init)) {
+            for(const init of source.init) {
+              await runCommand(init);
+            }
+          } else if(source.init) {
+            await runCommand(source.init);
           }
         });
     }

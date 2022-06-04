@@ -11,7 +11,7 @@ export type RequireBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 export interface RepoInfo {
   url: string;
-  init?: string;
+  init?: string | string[];
 }
 
 export interface PortBind {

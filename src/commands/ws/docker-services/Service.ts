@@ -48,7 +48,7 @@ function getVolumes(serviceProvider: ServiceProvider, context: ProviderContext) 
   return volumes;
 }
 
-export class Service implements ServiceInstance {
+export abstract class BaseService implements ServiceInstance {
   sources: Set<RepoInfo> = new Set();
 
   constructor(
@@ -59,13 +59,10 @@ export class Service implements ServiceInstance {
     }
   }
 
-  addSource(source:RepoInfo) {
-    this.sources.add(source);
-  }
-
   command(context:ProviderContext): string | string[] | undefined {
     return resolveProvider(this.provider.command, context) as string | string[] | undefined;
   }
+
   service(context: ProviderContext): DockerService {
     const command = this.command(context);
     const service = {
@@ -100,5 +97,11 @@ export class Service implements ServiceInstance {
 
   needsEntrypoint(context:ProviderContext): boolean {
     return this.hasNPMLinks() || Array.isArray(this.command(context));
+  }
+}
+
+export class Service extends BaseService {
+  addSource(source:RepoInfo) {
+    this.sources.add(source);
   }
 }

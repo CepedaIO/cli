@@ -1,4 +1,4 @@
-import {Service} from "./Service";
+import {BaseService} from "./Service";
 
 interface Options {
   mnts?: string[];
@@ -6,7 +6,7 @@ interface Options {
   image?: string;
 }
 
-export class NodeService extends Service {
+export class NodeJSService extends BaseService{
   constructor(
     public port: number,
     public options: Options = {}
@@ -21,6 +21,13 @@ export class NodeService extends Service {
         'yarn dev'
       ],
       image: options.image || 'vlegm/dev-alpine:latest'
+    });
+  }
+
+  addSource(url: string, init:string | string[] = 'yarn install') {
+    this.sources.add({
+      url,
+      init
     });
   }
 }
