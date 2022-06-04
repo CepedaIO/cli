@@ -21,8 +21,13 @@ export function providerFromPath(path:string): any {
   const services = {};
   const processServiceDefinitions = (obj:Object) => {
     for(const [serviceName, serviceDef] of Object.entries(obj)) {
+      console.log(serviceName, serviceDef);
       if(isServiceInstance(serviceDef) || isServiceProvider(serviceDef)) {
         services[serviceName] = serviceDef;
+
+        if(isServiceProvider(serviceDef) && serviceDef.repo) {
+          composer.addSource(serviceName, serviceDef.repo);
+        }
       } else if(isRepoInfo(serviceDef)) {
         composer.addSource(serviceName, serviceDef);
       }

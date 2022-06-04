@@ -7,19 +7,19 @@ import {join} from "path";
 const suiteName = 'init-with-git-repo';
 const suiteDir = join(config.tmpDir, suiteName);
 
-describe.skip('ws.init - Project with git repo ', () => {
+describe('ws.init - Project with git repo ', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
     const user = new MockCLIUser('vlm', ['ws', 'init', suiteName], {
-      cwd: suiteDir
+      cwd: config.tmpDir
     });
 
     await user.test([
       ['Add git repos?', 'y'],
       ['Git repo', 'git@github.com:vlegm/cli.git'],
-      ['Initialization command:'],
-      ['Git repo'],
-      ['Predefined Services:'],
+      ['Initialization command:', '\x0D'],
+      ['Git repo', '\x0D'],
+      ['Predefined Services:', '\x0D'],
       ['Add environment variables?','n'],
       ['Create your workstation?', 'y']
     ]);
@@ -31,9 +31,9 @@ describe.skip('ws.init - Project with git repo ', () => {
     this.timeout(0);
 
     expect(existsSync(suiteDir)).to.be.true;
-    expect(existsSync(`${suiteDir}/cli`)).to.be.true;
-    expect(existsSync(`${suiteDir}/cli/node_modules`)).to.be.true;
-    expect(existsSync(`${suiteDir}/cli/.git`)).to.be.true;
+    expect(existsSync(`${suiteDir}/services/cli`)).to.be.true;
+    expect(existsSync(`${suiteDir}/services/cli/node_modules`)).to.be.true;
+    expect(existsSync(`${suiteDir}/services/cli/.git`)).to.be.true;
   });
 
   it('should remove project', async function() {
@@ -44,7 +44,7 @@ describe.skip('ws.init - Project with git repo ', () => {
 
     await user.test([
       ['Are you sure you want to delete?', 'y'],
-      ['Would you also like to delete the project\'s directory?', 'y']
+      ['Would you also like to delete the project\'s directory?', 'n']
     ]);
 
     await user.waitTillDone();

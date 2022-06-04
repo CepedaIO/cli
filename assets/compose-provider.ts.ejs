@@ -1,4 +1,4 @@
-import { ComposeProvider, CommandOptions } from "@vlegm/cli";
+import { ComposeProvider, ProviderContext } from "@vlegm/cli";
 
 export default {
   "version": "3.7",
@@ -14,11 +14,11 @@ export default {
     "<%= key %>": {<% -%>
   <% for(const [prop, value] of Object.entries(repoService)) { -%>
     <% if(prop === 'command') { %>
-      "command": (env: string, options: CommandOptions) => {
+      "command": (context:ProviderContext) => {
         return "<%= value %>"
       },<% -%>
     <% } else if(prop === 'image') { %>
-      "image": (env: string) => {
+      "image": (context:ProviderContext) => {
         return "<%= value %>"
       },<% -%>
     <% } else { %>

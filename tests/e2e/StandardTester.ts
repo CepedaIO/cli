@@ -164,15 +164,18 @@ export class StandardTester {
     }, options);
   }
 
-  shouldBeAbleToStart(specs: NodeJS.Dict<{
-    tail?: TestInputs,
-    afterStart?: () => void
-  }> = {}, options:RunOptions = {}) {
+  shouldBeAbleToStart(specs: {
+    test?: TestInputs
+    services?: NodeJS.Dict<{
+      tail?: TestInputs,
+      afterStart?: () => void
+    }>
+  } = {}, options:RunOptions = {}) {
     return _it('should be able to start', async () => {
       const user = createCLIUser('vlm', ['ws', 'start', this.suiteName], this.suiteDir, options);
       user.specTimeout = 15000;
 
-      await user.test([
+      await user.test(specs.test || [
         'Hash:',
         'Starting project!'
       ]);
@@ -180,7 +183,7 @@ export class StandardTester {
       await user.waitTillDone();
 
       const errors:ServiceError[] = [];
-      for(const [service, actions] of Object.entries(specs)) {
+      for(const [service, actions] of Object.entries(specs.services || {})) {
         if(!actions) {
           break;
         }
@@ -250,7 +253,7 @@ export class StandardTester {
         err = e;
       }
 
-      expect(err.message).to.equal('Waiting for timeout reached');
+      expect(err.message).to.equal(`Unresolved prompt: ${this.suiteName}`);
     }, options);
   }
 }

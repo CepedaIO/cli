@@ -4,7 +4,7 @@ import {config} from "../../config";
 
 const suiteName = 'init-empty-project';
 
-describe.only('ws.init - Empty Project', () => {
+describe('ws.init - Empty Project', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
     const user = new MockCLIUser('vlm', ['ws', 'init', suiteName], {
@@ -25,9 +25,7 @@ describe.only('ws.init - Empty Project', () => {
     this.timeout(0);
     const user = new MockCLIUser('vlm', ['ws', 'projects']);
 
-    const output = await user.nextMessage();
-    expect(output.includes(suiteName)).to.be.true;
-
+    await user.waitFor(suiteName);
     await user.waitTillDone();
   });
 

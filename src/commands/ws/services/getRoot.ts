@@ -1,5 +1,5 @@
-import { normalize } from "path";
+import { join } from "path";
 
 export function getRoot(name:string): string {
-  return normalize(`${process.cwd()}/services/${name}`);
+  return join(process.cwd(), name);
 }

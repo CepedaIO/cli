@@ -10,3 +10,4 @@ tmp
 playground
 .data
 .npmrc
+*.tgz

@@ -12,14 +12,16 @@ describe('ws - Project with NodeJS service', () => {
   });
 
   standardTester.shouldBeAbleToStart({
-    server: {
-      tail: [
-        'yarn install',
-        'Listening: 3000'
-      ],
-      afterStart: async () => {
-        const resp = await axios.get('http://localhost:3000');
-        expect(resp.data).to.equal('Hello World!');
+    services: {
+      server: {
+        tail: [
+          'yarn install',
+          'Listening: 3000'
+        ],
+        afterStart: async () => {
+          const resp = await axios.get('http://localhost:3000');
+          expect(resp.data).to.equal('Hello World!');
+        }
       }
     }
   });

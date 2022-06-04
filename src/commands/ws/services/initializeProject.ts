@@ -1,11 +1,40 @@
+import {NormalizedComposeProvider} from "../../../types";
+import {providerFromProject} from "./providerFromProject";
+import {Composer, composer} from "./composer";
+import {iProject, Project} from "../models/Project";
 import {existsSync} from "fs";
 import {mkdir} from "fs/promises";
-import {run} from "@vlegm/utils";
 import chalk from "chalk";
-import {Composer} from "./composer";
-import {iProject, Project} from "../models/Project";
+import {run} from "@vlegm/utils";
+import {log1} from "../../../utils/log";
 
-export async function createSources(project:iProject, composer:Composer) {
+export async function initializeProject(project:iProject) {
+  log1('Initializing Project');
+  await run('npx', ['tsc'], {
+    cwd: project.root,
+    shell: true
+  });
+
+  const provider:NormalizedComposeProvider = providerFromProject(project);
+  addSources(composer, provider);
+  await createSources(project, composer);
+  return provider;
+}
+
+function addSources(composer:Composer, provider: NormalizedComposeProvider) {
+  Object.entries(provider.services)
+    .forEach(([serviceName, service]) => {
+      if(!service) {
+        return;
+      }
+
+      if(service.source) {
+        composer.addSource(serviceName, service.source);
+      }
+    });
+}
+
+async function createSources(project:iProject, composer:Composer) {
   if(project.sources.initialized.length === 0 &&!existsSync(project.services.root)) {
     await mkdir(project.services.root);
   }

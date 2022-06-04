@@ -5,15 +5,13 @@ import { createHash } from "crypto";
 import { run } from "@vlegm/utils";
 import chalk from "chalk";
 import { generateDockerCompose } from "./generateDockerCompose"
-import {NormalizedComposeProvider, StartOptions} from "../../../../types";
+import {StartOptions} from "../../../../types";
 import {providerFromProject} from "../../services/providerFromProject";
 import {generateEnv} from "./generateEnvFile";
 import {generateEntrypoint} from "./generateEntrypoints";
 import {rm} from "fs/promises";
 import {distDir} from "../../../../configs/app";
-import {composer} from "../../services/composer";
-import {addSources} from "../../services/addSources";
-import {createSources} from "../../services/createSources";
+import {initializeProject} from "../../services/initializeProject";
 
 const { readFile } = promises;
 
@@ -49,9 +47,9 @@ export async function generateStartFiles(project: iProject, options: StartOption
     project.hash = hash;
     await Project.save(project);
 
-    const provider:NormalizedComposeProvider = providerFromProject(project);
-    addSources(composer, provider);
-    await createSources(project, composer);
+    await initializeProject(project);
+
+    const provider = providerFromProject(project);
     options.hasEnvFile = await generateEnv(project, provider, options);
     await generateDockerCompose(project, provider, options);
     await generateEntrypoint(project, provider, options);

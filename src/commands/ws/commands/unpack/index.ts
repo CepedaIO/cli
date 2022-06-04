@@ -1,18 +1,19 @@
 import {existsSync} from "fs";
 import {run} from "@vlegm/utils";
-import {basename} from "path";
+import {basename, join} from "path";
 import {Project} from "../../models/Project";
-import {NormalizedComposeProvider} from "../../../../types";
-import chalk from "chalk";
 
-import packageJSON from "./package.json";
-import tsconfigJSON from "./tsconfig.json";
+import packageJSON from "../../../../../package.json";
+import basePackageJSON from "./package.json";
+import baseTsconfigJSON from "./tsconfig.json";
 import {writeFile} from "fs/promises";
 import {rootDir} from "../../../../configs/app";
-import {providerFromProject} from "../../services/providerFromProject";
-import {addSources} from "../../services/addSources";
-import {composer} from "../../services/composer";
-import {createSources} from "../../services/createSources";
+import {initializeProject} from "../../services/initializeProject";
+import {log1, log2} from "../../../../utils/log";
+
+export function getVlegmDependency(isTestEnv:boolean): string {
+  return isTestEnv ? join(rootDir, `vlegm-cli-v${packageJSON.version}.tgz`) : `^${packageJSON.version}`;
+}
 
 export async function unpack(projectName?: string) {
   if(!existsSync('./compose-provider.ts')) {
@@ -21,27 +22,19 @@ export async function unpack(projectName?: string) {
 
   const cwd = process.cwd();
   const name = projectName ? projectName : basename(cwd);
-  console.log(`Creating project: ${chalk.greenBright(name)}`);
+  log2('Creating Project', name);
 
   const project = await Project.init(name, cwd);
 
-  console.log('Installing dependencies...');
-  packageJSON.dependencies['@vlegm/cli'] = rootDir;
-  await writeFile(`${project.root}/package.json`, JSON.stringify(packageJSON, null, 2));
-  await writeFile(`${project.root}/tsconfig.json`, JSON.stringify(tsconfigJSON, null, 2));
+  log1('Installing mocha dependencies...');
+  basePackageJSON.dependencies['@vlegm/cli'] = getVlegmDependency(process.env.VLEGM_CLI_ENV === 'test');
+  await writeFile(`${project.root}/package.json`, JSON.stringify(basePackageJSON, null, 2));
+  await writeFile(`${project.root}/tsconfig.json`, JSON.stringify(baseTsconfigJSON, null, 2));
 
   await run('yarn', ['install'], {
     cwd: project.root,
     shell: true
   });
 
-  console.log('Building project...');
-  await run('npx', ['tsc'], {
-    cwd: project.root,
-    shell: true
-  });
-
-  const provider:NormalizedComposeProvider = providerFromProject(project);
-  addSources(composer, provider);
-  await createSources(project, composer);
+  await initializeProject(project);
 }
