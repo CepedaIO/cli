@@ -18,7 +18,6 @@ export interface RepoInfo {
 export interface StartOptions {
   build: boolean;
   generate: boolean;
-  exclude: string;
 }
 
 export function isRepoReference(obj:any): obj is isRepoReference {
@@ -63,7 +62,7 @@ export interface ProviderContext {
 export interface ComposeProvider {
   version: string;
   env?: Dict<string>,
-  predefined?: Array<keyof typeof dockerServices>,
+  predefined?: string[],
   services?: Dict<ServiceProvider>;
   volumes?: Dict<DockerVolume>;
 }

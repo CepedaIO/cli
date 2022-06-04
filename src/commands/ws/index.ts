@@ -10,6 +10,8 @@ import {unpack} from "./commands/unpack";
 import { exec } from "./commands/exec";
 import {tail} from "./commands/tail";
 import {restart} from "./commands/restart";
+import {exclude} from "./commands/exclude";
+import {include} from "./commands/include";
 
 register('ws', (program: Command) => {
   program.description('Workstation tool helps you set up docker environments')
@@ -18,7 +20,6 @@ register('ws', (program: Command) => {
     .description('Start docker service(s)')
     .option('-b, --build', "Force project to build itself", false)
     .option('-g, --generate', "Only generate startup files, do not start", false)
-    .option('-e, --exclude <service-names>', 'Comma delimited list of service names', '')
     .action(start);
 
   program.command('restart [service] [project]')
@@ -36,6 +37,14 @@ register('ws', (program: Command) => {
   program.command('stop [service] [project]')
     .description('Stop docker services')
     .action(stop);
+
+  program.command('exclude [service]')
+    .description('Exclude service for future builds')
+    .action(exclude);
+
+  program.command('include [service]')
+    .description('Include a previously excluded service for future builds')
+    .action(include);
 
   program.command('init <project>')
     .description('Initialize a new project')

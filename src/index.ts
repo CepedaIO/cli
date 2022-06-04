@@ -8,7 +8,6 @@ init().then(() => {
   const program = buildProgram(`${rootDir}/commands`, ['shell', 'ws', 'vue']);
 
   program.parseAsync(process.argv)
-    .then(() => console.log(`Have a ${chalk.green('great')} day!`))
     .catch(console.error);
 });
 

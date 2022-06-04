@@ -20,6 +20,15 @@ export default {
       'postgres:/var/lib/postgresql/data'
     ]
   },
+  pgadmin: {
+    image: 'dpage/pgadmin4:latest',
+    ports: [
+      '80:8081'
+    ],
+    volumes: [
+      'pgadmin:/var/lib/pgadmin'
+    ]
+  },
   redis: {
     image: 'redis:5.0.7',
     ports: [

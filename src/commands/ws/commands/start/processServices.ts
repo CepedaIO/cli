@@ -71,10 +71,9 @@ async function processService(project:iProject, provider:ServiceProvider, contex
 
 export async function processServices(project:iProject, env:string, provider: ComposeProvider, options:StartOptions): Promise<Dict<DockerService>> {
   let services = {};
-  const excludes = options.exclude.split(',');
 
   for (const [serviceName, serviceProvider] of Object.entries(provider.services || {})) {
-    if(excludes.includes(serviceName)) {
+    if(project.excluded.includes(serviceName)) {
       break;
     }
 

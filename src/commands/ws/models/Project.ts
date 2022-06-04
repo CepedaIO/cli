@@ -12,6 +12,7 @@ export interface iProject {
   servicesRoot: string;
   hash?: string;
   workstation?: string;
+  excluded: string[];
 }
 
 function dataURL(name:string) {
@@ -32,7 +33,8 @@ export const Project = {
     const project = {
       name,
       root,
-      servicesRoot
+      servicesRoot,
+      excluded: []
     }
 
     await Project.save(project);
