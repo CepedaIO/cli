@@ -1,14 +1,14 @@
-import {getProject} from "../services/getProject";
 import {Project} from "../models/Project";
 import {serviceExists} from "../services/serviceExists";
 import chalk from "chalk";
+import {getProject} from "../prompts/getProject";
 
-export async function exclude(service?: string, projectName?: string) {
-  const project = await getProject(projectName, service);
+export async function exclude(serviceName?: string, projectName?: string) {
+  const project = await getProject(projectName, serviceName);
 
-  if(serviceExists(service, project)) {
-    if (!project.excluded.includes(service)) {
-      project.excluded.push(service);
+  if(serviceExists(serviceName, project)) {
+    if (!project.excluded.includes(serviceName)) {
+      project.excluded.push(serviceName);
     }
 
     project.hash = '';

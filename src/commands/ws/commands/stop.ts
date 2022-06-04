@@ -1,17 +1,17 @@
 import {run} from "@vlegm/utils";
-import {getProject} from "../services/getProject";
 import {serviceExists} from "../services/serviceExists";
+import {getProject} from "../prompts/getProject";
 
-export async function stop(service?: string, projectName?: string) {
-  const project = await getProject(projectName, service);
+export async function stop(serviceName?: string, projectName?: string) {
+  const project = await getProject(projectName, serviceName);
 
-  if(serviceExists(service, project)) {
+  if(serviceExists(serviceName, project)) {
     /**
      * service provided, restart for service
      */
-    console.log(`Stopping service: ${service}`);
-    await run('docker-compose', ['stop', service], project.root);
-    await run('docker-compose', ['rm', service], project.root);
+    console.log(`Stopping service: ${serviceName}`);
+    await run('docker-compose', ['stop', serviceName], project.root);
+    await run('docker-compose', ['rm', serviceName], project.root);
   } else {
     /**
      * No service provided, stop whole project

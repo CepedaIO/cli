@@ -1,19 +1,19 @@
 import chalk from "chalk";
 import {run} from "@vlegm/utils";
-import {getProject} from "../services/getProject";
 import {serviceExists} from "../services/serviceExists";
+import {getProject} from "../prompts/getProject";
 
-export async function exec(service: string, command:string, projectName?: string) {
-  const project = await getProject(projectName);
+export async function exec(serviceName: string, command:string, projectName?: string) {
+  const project = await getProject(projectName, serviceName);
 
-  if(!serviceExists(service, project)) {
-    throw new Error('Service is not currently part of project');
+  if(!serviceExists(serviceName, project)) {
+    throw new Error(`Service (${serviceName}) is not part of project`);
   }
 
   console.log(`Executing: ${chalk.blueBright(command)}`);
-  console.log(`Within Service: ${chalk.blueBright(service)}`);
+  console.log(`Within Service: ${chalk.blueBright(serviceName)}`);
 
-  await run('docker-compose', ['exec', service, command], {
+  await run('docker-compose', ['exec', serviceName, command], {
     cwd: project.root
   });
 }

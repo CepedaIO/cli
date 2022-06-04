@@ -1,13 +1,13 @@
 import {run} from "@vlegm/utils";
-import {getProject} from "../services/getProject";
 import {serviceExists} from "../services/serviceExists";
+import {getProject} from "../prompts/getProject";
 
-export async function tail(service:string, projectName?: string) {
+export async function tail(serviceName:string, projectName?:string) {
   const project = await getProject(projectName);
 
-  if(!serviceExists(service, project)) {
-    throw new Error('Service is not currently part of project');
+  if(!serviceExists(serviceName, project)) {
+    throw new Error(`Service ${serviceName} is not part of project`);
   }
 
-  await run('docker-compose', ['logs', '-ft', service], project.root);
+  await run('docker-compose', ['logs', '-ft', serviceName], project.root);
 }

@@ -1,5 +1,4 @@
-  import { DockerService } from "docker-compose";
-import { Dict } from "../../types";
+import { Dict, DockerService } from "../../types";
 
 export default {
   mysql: {

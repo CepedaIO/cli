@@ -1,22 +1,23 @@
 import chalk from 'chalk';
 import {run} from "@vlegm/utils";
 import { generateStartFiles } from './generateStartFiles';
-import {getProject} from "../../services/getProject";
 import {StartOptions} from "../../../../types";
 import {serviceExists} from "../../services/serviceExists";
+import {getProject} from "../../prompts/getProject";
 
-export async function start(service?:string, projectName?: string, options?: StartOptions) {
-  const project = await getProject(projectName, service);
+export async function start(serviceName?:string, projectName?: string, options?: StartOptions) {
+  console.log('before');
+  const project = await getProject(projectName, serviceName);
   const environment = "local";
 
   await generateStartFiles(project, environment, options!);
 
-  if(serviceExists(service, project)) {
+  if(serviceExists(serviceName, project)) {
     /**
      * service provided, restart for service
      */
-    console.log(`Starting service: ${chalk.yellow(service)}`);
-    await run('docker-compose', ['up', '-d', service], project.root);
+    console.log(`Starting service: ${chalk.yellow(serviceName)}`);
+    await run('docker-compose', ['up', '-d', serviceName], project.root);
   } else {
     /**
      * No service provided, start whole project
