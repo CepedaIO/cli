@@ -19,8 +19,8 @@ function getVolumes(project:iProject, provider: ServiceProvider, context: Provid
 
   volumes.push(`./services/${context.name}:/mnt/host`)
 
-  if(provider.links) {
-    const linkVolumes = provider.links.map((link) => {
+  if(provider.mnts) {
+    const linkVolumes = provider.mnts.map((link) => {
       const [serviceName] = tuple(link);
       return `./services/${serviceName}:/mnt/${serviceName}`;
     });

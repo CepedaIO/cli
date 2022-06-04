@@ -12,6 +12,7 @@ import {readFile} from "fs/promises";
 import {assetsDir} from "../../../../config/app";
 import {DockerCompose, DockerService} from "../../../../docker-compose";
 import chalk from "chalk";
+import dockerServices from "../../dockerServices";
 
 async function processServices(project:iProject, env:string, providers: ComposeProvider['services'], commandOptions:CommandOptions): Promise<Dict<DockerService>> {
   let services = {};
@@ -35,9 +36,17 @@ export async function generateDockerCompose(project:iProject, config:ComposeProv
   const schemaBuffer = await readFile(`${assetsDir}/docker-compose.schema.json`);
   const schema = JSON.parse(schemaBuffer.toString('utf-8'));
 
+  const predefinedServices = config.predefined?.reduce((res, serviceName) => ({
+    ...res,
+    [serviceName]: dockerServices[serviceName]
+  }), {});
+
   const result = validateSchema({
     ...config,
-    services
+    services: {
+      ...services,
+      ...predefinedServices
+    }
   }, schema, {
     filterAdditionalProperties: true,
     allErrors: true

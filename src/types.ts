@@ -38,7 +38,7 @@ export type MapAsProvider<T, K extends keyof T> = Omit<T, K> & {
 
 export interface ServiceProviderOptionals {
   repo?: RepoInfo
-  links?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
+  mnts?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
 }
 
 export type ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'build' | 'volumes'>

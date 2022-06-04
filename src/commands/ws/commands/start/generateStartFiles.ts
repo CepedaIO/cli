@@ -47,7 +47,7 @@ export async function generateStartFiles(project: iProject, environment = 'maste
     const dockerCompose = await generateDockerCompose(project, config, 'local', {
       test: isTest
     });
-    
+
     await JSAML.save(dockerCompose, `${project.root}/docker-compose.yaml`);
   }
 }
