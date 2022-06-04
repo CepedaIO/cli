@@ -1,14 +1,20 @@
 import {config} from "../configs/e2e";
-import {cleanup, getProviderFromPath, setup} from "./utils";
+import {cleanup, expectExists, setup} from "./utils";
 import {expect} from "chai";
 import {MockCLIUser} from "@vlegm/utils";
 import {copyFiles} from "../dist/commands/ws/services/copyFiles";
 import {AsyncFunc} from "mocha";
-import {NormalizedComposeProvider} from "../dist";
+import {readdir} from "fs/promises";
 
 interface RunOptions {
   output?: boolean;
   flags?: 'skip' | 'only' | ''
+}
+
+export interface ServiceSpec {
+  name: string,
+  type: 'node',
+  tail?: string[]
 }
 
 interface StandardTesterOptions {
@@ -38,15 +44,11 @@ function _it(title:string, cb:AsyncFunc, options:RunOptions) {
 }
 
 export class StandardTester {
-  provider: NormalizedComposeProvider;
-
   constructor(
     public tmpDir: string,
     public testDir: string,
     public options: StandardTesterOptions = {}
   ) {
-    const self = this;
-
     before(async function() {
       this.timeout(0);
       if(options.skipCleanup !== true) {
@@ -57,17 +59,13 @@ export class StandardTester {
       await copyFiles([
         `${testDir}/compose-provider.ts`
       ], tmpDir);
-
-     await getProviderFromPath(`${tmpDir}/compose-provider.ts`);
-      console.log(9);
-      //self.provider = provider;
     });
   }
 
-  shouldUnpackProject(options: RunOptions = {}) {
-    const self = this;
+  shouldUnpackProject(specs: {
+    services?: ServiceSpec[]
+  } = {},options: RunOptions = {}) {
     return _it('should initialize workstation', async function () {
-      /*
       const user = new _MockCLIUser('vlm', ['ws', 'unpack'], options);
 
       await user.waitTillDone();
@@ -83,20 +81,19 @@ export class StandardTester {
 
       const files = await readdir(`${config.tmpDir}/services`);
       expect(files.length).to.equal(specs.services?.length || 0, `There are ${specs.services?.length || 0} services`);
-*/
-      console.log(9);
-      console.log(self.provider);
-      /*
-      specs.services.forEach((service) => {
-        if(service.type === "node") {
-          const servicePath = `${config.tmpDir}/services/${service.name}`;
 
-          expectExists([
-            `node_modules`,
-            `yarn.lock`
-          ], servicePath);
-        }
-      })*/
+      if(specs.services) {
+        specs.services.forEach((service) => {
+          if(service.type === "node") {
+            const servicePath = `${config.tmpDir}/services/${service.name}`;
+
+            expectExists([
+              `node_modules`,
+              `yarn.lock`
+            ], servicePath);
+          }
+        })
+      }
     }, options);
   }
 
@@ -158,15 +155,34 @@ export class StandardTester {
     return _it('should be able to start', async function() {
       const user = new _MockCLIUser('vlm', ['ws', 'start', 'tmp'], options);
 
-      user.specTimeout = 10000;
+      user.specTimeout = 15000;
 
       await user.test([
         'Hash:',
         'Starting project!'
       ]);
+
+      await user.waitTillDone();
     }, options);
   }
 
+  shouldTailServices(specs: {
+    services: ServiceSpec[]
+  }, options:RunOptions = {}) {
+    return _it('should tail services for output', async function() {
+      for(const serviceSpec of specs.services) {
+        if(serviceSpec.tail) {
+          const user = new _MockCLIUser('vlm', ['ws', 'tail', serviceSpec.name, 'tmp'], options);
+
+          user.specTimeout = 3000;
+
+          await user.test(serviceSpec.tail);
+          await user.waitTillDone();
+        }
+      }
+
+    }, options);
+  }
 
   shouldRemoveProject(options:RunOptions = {}) {
     return _it('should remove project', async function() {

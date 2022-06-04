@@ -1,4 +1,4 @@
-import {NodeJSService} from "../../../../src";
+import {NodeJSService} from "@vlegm/cli";
 import {normalize} from "path";
 
 /*

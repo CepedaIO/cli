@@ -27,17 +27,3 @@ export function expectExists(urls: string[], relative?: string) {
     }
   });
 }
-
-const providerCache:Map<string, NormalizedComposeProvider> = new Map();
-export async function getProviderFromPath(path:string): Promise<NormalizedComposeProvider> {
-  if(providerCache.has(path)) {
-    return providerCache.get(path)!;
-  }
-
-  const provider = providerFromPath(path);
-  console.log(7);
-  providerCache.set(path, provider);
-  console.log(8);
-  //console.log(provider);
-  return provider;
-}
