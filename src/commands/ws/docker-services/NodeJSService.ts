@@ -32,7 +32,7 @@ export class NodeJSService extends ServiceFactory {
     super(provider);
   }
 
-  addSource(url: string, init:string | string[] = 'npm install') {
+  addSource(url: string, init:string | string[] = 'yarn install') {
     super.addSource(url, init);
   }
 }
