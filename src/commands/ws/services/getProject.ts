@@ -3,7 +3,8 @@ import {iProject, Project} from "../models/Project";
 import chalk from "chalk";
 
 export async function getProject(projectName?: string, serviceName?:string): Promise<iProject> {
-  let project:iProject | undefined
+  let project:iProject | undefined;
+
   if(projectName) {
     project = await Project.get(projectName);
   }

@@ -38,11 +38,11 @@ register('ws', (program: Command) => {
     .description('Stop docker services')
     .action(stop);
 
-  program.command('exclude [service]')
+  program.command('exclude [service] [project]')
     .description('Exclude service for future builds')
     .action(exclude);
 
-  program.command('include [service]')
+  program.command('include [service] [project]')
     .description('Include a previously excluded service for future builds')
     .action(include);
 
