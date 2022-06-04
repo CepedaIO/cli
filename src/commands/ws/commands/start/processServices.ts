@@ -3,7 +3,7 @@ import {
   StartOptions,
   ComposeProvider, Dict,
   DockerService, isServiceProvider,
-  Provider,
+  FieldProvider,
   ProviderContext,
   ServiceProvider
 } from "../../../../types";
@@ -14,26 +14,29 @@ import {entrypointActionsFromLinks} from "./entrypointActionsFromLinks";
 import {tuple} from "./tuple";
 import dockerServices from "../../dockerServices";
 
-function resolveProvider<T>(provider: Provider<T> | undefined, context:ProviderContext): T  | undefined {
-  if(isFunction(provider)) {
-    return provider(context);
+function resolveProvider<T>(fieldProvider: FieldProvider<T> | undefined, context:ProviderContext): T  | undefined {
+  if(isFunction(fieldProvider)) {
+    return fieldProvider(context);
   }
 
-  return provider;
+  return fieldProvider;
 }
 
-function getVolumes(project:iProject, provider: ServiceProvider, context: ProviderContext) {
-  const volumes = resolveProvider(provider.volumes as string[], context) || [];
+function getVolumes(project:iProject, serviceProvider: ServiceProvider, context: ProviderContext) {
+  const volumes = resolveProvider(serviceProvider.volumes as string[], context) || [];
 
   volumes.push(`./services/${context.name}:/mnt/host`)
 
-  if(provider.mnts) {
-    const linkVolumes = provider.mnts.map((link) => {
+  if(serviceProvider.mnts) {
+    const linkVolumes = serviceProvider.mnts.map((link) => {
       const [serviceName] = tuple(link);
       return `./services/${serviceName}:/mnt/${serviceName}`;
     });
-    volumes.push.apply(volumes, linkVolumes);
 
+    volumes.push.apply(volumes, linkVolumes);
+  }
+
+  if(serviceProvider.mnts || Array.isArray(context.command)) {
     const entrypointName = `${context.name}-entrypoint.sh`;
     const entrypointPath = `./dist/${entrypointName}`;
     volumes.push(`${entrypointPath}:/mnt/entrypoint.sh`)
@@ -43,10 +46,29 @@ function getVolumes(project:iProject, provider: ServiceProvider, context: Provid
 }
 
 async function generateEntrypointFile(project: iProject, provider: ServiceProvider, service: DockerService, context:ProviderContext) {
+  let actions: string[] = [];
+
   if(provider.mnts) {
+    actions = await entrypointActionsFromLinks(project, provider, service);
+  }
+
+  if(Array.isArray(context.command)) {
+    actions.push.apply(actions, context.command);
+  }
+
+  if(actions.length > 0) {
+    if(typeof context.command === "string") {
+      actions.push(context.command);
+    }
+
+    if(service.entrypoint) {
+      actions.push(`sh ${service.entrypoint}`);
+    }
+
+    actions.unshift('#!/usr/bin/env sh');
+
     const entrypointName = `${context.name}-entrypoint.sh`;
     const entrypointPath = normalize(`${project.root}/dist/${entrypointName}`);
-    const actions = await entrypointActionsFromLinks(project, provider, service);
     await writeFile(entrypointPath, actions.join('\n'));
     await chmod(entrypointPath, "755");
 
@@ -55,10 +77,12 @@ async function generateEntrypointFile(project: iProject, provider: ServiceProvid
 }
 
 async function processService(project:iProject, provider:ServiceProvider, context:ProviderContext) {
+  context.command = resolveProvider(provider.command, context) as string | string[] | undefined;
+
   const service = {
     ...provider,
     volumes: getVolumes(project, provider, context),
-    command: resolveProvider(provider.command, context),
+    command: !Array.isArray(context.command) ? context.command : undefined,
     image: resolveProvider(provider.image, context),
     build: resolveProvider(provider.build, context),
     working_dir: '/mnt/host'

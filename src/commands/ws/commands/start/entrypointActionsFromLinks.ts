@@ -13,7 +13,6 @@ export async function entrypointActionsFromLinks(project:iProject, provider: Ser
   })
 
   let actions = [
-    '#!/usr/bin/env sh',
     'cwd=$PWD'
   ];
 
@@ -28,14 +27,6 @@ export async function entrypointActionsFromLinks(project:iProject, provider: Ser
     const [,linkName] = tuple(link);
     return `yarn link ${linkName}`;
   }));
-
-  if(typeof service.command === "string") {
-    actions.push(service.command);
-  }
-
-  if(Array.isArray(service.command)) {
-    actions.push.apply(actions, service.command);
-  }
 
   return actions;
 }

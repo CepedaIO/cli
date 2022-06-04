@@ -48,7 +48,7 @@ export async function generateStartFiles(project: iProject, environment = 'maste
 
     if(provider.env) {
       console.log('Creating .env file');
-      const envPath = normalize(`${project.root}/dist/.env`);
+      const envPath = `./dist/.env`;
 
       await writeFile(envPath,
         Object.entries(provider.env)

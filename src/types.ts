@@ -36,9 +36,9 @@ export interface WorkstationAnswers {
   env?: Dict<string>;
 }
 
-export type Provider<T> = T | ((context: ProviderContext) => T);
+export type FieldProvider<T> = T | ((context: ProviderContext) => T);
 export type MapAsProvider<T, K extends keyof T> = Omit<T, K> & {
-  [Key in K]: Provider<T[K]>
+  [Key in K]: FieldProvider<T[K]>
 } & ServiceProviderOptionals;
 
 export interface ServiceProviderOptionals {
@@ -57,6 +57,7 @@ export interface ProviderContext {
   name: string;
   env: string;
   options: StartOptions;
+  command?: string | string[];
 }
 
 export interface ComposeProvider {

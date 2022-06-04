@@ -3,6 +3,7 @@ import { promises } from 'fs';
 import {Project} from "../models/Project";
 import { confirm } from '../prompts/confirm';
 import {Application} from "../models/Application";
+import {stop} from "./stop";
 
 const {rm} = promises;
 
@@ -24,6 +25,7 @@ export async function remove(name: string) {
     return;
   }
 
+  await stop(undefined, project.name);
   await Project.remove(name);
 
   const defaultProject = await Application.defaultProject();

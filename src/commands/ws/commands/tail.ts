@@ -9,7 +9,5 @@ export async function tail(service:string, projectName?: string) {
     throw new Error('Service is not currently part of project');
   }
 
-  await run('docker-compose', ['logs', '-ft', service], {
-    cwd: project.root
-  });
+  await run('docker-compose', ['logs', '-ft', service], project.root);
 }
