@@ -4,25 +4,9 @@ import {existsSync} from "fs";
 import {mkdir} from "fs/promises";
 import {run} from "@vlegm/utils";
 import chalk from "chalk";
+import {addSource} from "./compose";
 
-export const sources:Map<string, RepoInfo> = new Map();
 
-export function addSource(serviceName:string, source: RepoInfo) {
-  sources.set(serviceName, source);
-}
-
-export function addNodeJSSource(serviceName: string, url: string, init: string | string[] = 'yarn install') {
-  addSource(serviceName, { url, init });
-}
-
-export function addSources(provider: NormalizedComposeProvider) {
-  Object.entries(provider.services)
-    .forEach(([serviceName, service]) => {
-      if(service instanceof Service) {
-        service.sources.forEach((source) => addSource(serviceName, source));
-      }
-    });
-}
 
 export async function createSources(servicesRoot: string): Promise<any> {
   if(!existsSync(servicesRoot)) {
