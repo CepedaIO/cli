@@ -3,7 +3,7 @@ import {StandardTester} from "../../../StandardTester";
 import axios from "axios";
 import {expect} from "chai";
 
-describe('ws - Project with NodeJS service', () => {
+describe.only('ws - Project with NodeJS service', () => {
   let standardTester:StandardTester = new StandardTester(config.tmpDir, __dirname, [
     {
       name:'server',
@@ -17,21 +17,19 @@ describe('ws - Project with NodeJS service', () => {
         expect(resp.data).to.equal('Hello World!');
       }
     }
-  ], {
-    skipCleanup: true
-  });
+  ]);
 
-  standardTester.shouldUnpackProject({ flags:"" });
+  standardTester.shouldUnpackProject();
 
-  standardTester.shouldBeAbleToStart({ flags:"" });
+  standardTester.shouldBeAbleToStart();
 
-  standardTester.shouldTailServices({
-    flags: "only"
-  });
+  standardTester.shouldTailServices();
 
-  standardTester.shouldTestForRunningServices()
+  standardTester.shouldTestForRunningServices();
+
+  standardTester.shouldBeAbleToStop();
 
   standardTester.shouldExcludeService({
     serviceName: 'server'
-  })
+  }, { flags:"skip" })
 });

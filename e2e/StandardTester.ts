@@ -193,14 +193,29 @@ export class StandardTester {
     return _it('should tail services for output', async function() {
       for(const serviceSpec of services) {
         if(serviceSpec.tail) {
-          const user = new _MockCLIUser('vlm', ['ws', 'tail', '--peek', serviceSpec.name, 'tmp'], options);
+          const user = new _MockCLIUser('vlm', ['ws', 'tail', serviceSpec.name, 'tmp'], options);
 
-          user.specTimeout = 3000;
+          user.specTimeout = 60000;
 
           await user.test(serviceSpec.tail);
+          user.process.kill(9);
         }
       }
 
+    }, options);
+  }
+
+  shouldBeAbleToStop(options:RunOptions = {}) {
+    return _it('should be able to stop', async function() {
+      const user = new _MockCLIUser('vlm', ['ws', 'stop', 'tmp'], options);
+
+      user.specTimeout = 15000;
+
+      await user.test([
+        'Stopping project!'
+      ]);
+
+      await user.waitTillDone();
     }, options);
   }
 
