@@ -2,15 +2,13 @@ import {StandardTester} from "../../../StandardTester";
 import axios from "axios";
 import {expect} from "chai";
 
-describe.only('ws - Project with NodeJS service', () => {
+describe('ws - Project with NodeJS service', () => {
   let standardTester:StandardTester = new StandardTester('with-node-service', __dirname, {
     skipCleanup: false,
   });
 
   standardTester.shouldInitializeWorkstation({
     server: 'node'
-  }, {
-    verbose: true
   });
 
   standardTester.shouldBeAbleToStart({
@@ -24,11 +22,9 @@ describe.only('ws - Project with NodeJS service', () => {
         expect(resp.data).to.equal('Hello World!');
       }
     }
-  }, {
-    verbose: true
   });
 
-  standardTester.shouldBeAbleToStop({ verbose: true });
+  standardTester.shouldBeAbleToStop();
 
   standardTester.shouldExcludeService({
     serviceName: 'server'
