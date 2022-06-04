@@ -38,7 +38,7 @@ export function isServiceProvider(obj:any): obj is ServiceProvider {
   return obj.image || obj.build;
 }
 
-export function isServiceInstance(obj:any): obj is ServiceInstance {
+export function isServiceInstance(obj:any): obj is ServiceFactory {
   return obj.env && obj.service;
 }
 
@@ -75,15 +75,16 @@ export interface ComposeProvider {
   version: string;
   env?: Dict<string | number>;
   predefined?: string[];
-  services?: Dict<ServiceProvider | ServiceInstance>;
+  services?: Dict<ServiceProvider | ServiceFactory>;
   volumes?: Dict<DockerVolume>;
 }
 
 export interface NormalizedComposeProvider extends ComposeProvider {
-  services: Dict<BaseService>;
+  services: Dict<ServiceFactory>;
 }
 
-export interface ServiceInstance {
+export interface ServiceFactory {
+  source?: RepoInfo;
   env?(context: ProviderContext): Dict<string | number>;
   service(context: ProviderContext): DockerService;
   volumes?(context:ProviderContext): Dict<DockerVolume>;

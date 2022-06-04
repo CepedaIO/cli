@@ -5,7 +5,7 @@ import {
 } from "../../../../types";
 import {normalize} from "path";
 import {chmod, readFile, writeFile} from "fs/promises";
-import {BaseService, NodeJSService} from "../../docker-services";
+import {BaseService, isBaseService, NodeJSService} from "../../docker-services";
 import {distDir} from "../../../../config/app";
 import {existsSync} from "fs";
 import {iProject} from "../../models/Project";
@@ -96,7 +96,7 @@ export async function generateEntrypoint(project:iProject, provider: NormalizedC
       options
     };
 
-    if(serviceDef.needsEntrypoint(context)) {
+    if(isBaseService(serviceDef) && serviceDef.needsEntrypoint(context)) {
       const lines = await generateEntrypointLines(project, serviceDef, context);
       const entrypointName = `${context.name}-entrypoint.sh`;
       const entrypointPath = normalize(`${distDir(project.root)}/${entrypointName}`);

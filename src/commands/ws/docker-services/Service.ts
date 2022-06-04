@@ -3,7 +3,7 @@ import {
   DockerService,
   FieldProvider,
   ProviderContext, RepoInfo,
-  ServiceInstance,
+  ServiceFactory,
   ServiceProvider,
 } from "../../../types";
 import {isFunction} from "@vlegm/utils";
@@ -45,17 +45,16 @@ function getVolumes(serviceInst: BaseService, context: ProviderContext) {
   return volumes;
 }
 
-export abstract class BaseService implements ServiceInstance {
-  sources: Set<RepoInfo> = new Set();
-  name!: string;
+export function isBaseService(obj:any): obj is BaseService  {
+  return obj.prototype && obj.prototype instanceof BaseService;
+}
+
+export abstract class BaseService implements ServiceFactory {
+  public name!: string;
 
   constructor(
     public provider: ServiceProvider
-  ) {
-    if(provider.repo) {
-      this.sources.add(provider.repo);
-    }
-  }
+  ) {}
 
   linkWithNPM(serviceName: string) {
     if(!this.provider.npmLinks) {
@@ -63,6 +62,10 @@ export abstract class BaseService implements ServiceInstance {
     }
 
     this.provider.npmLinks.push(serviceName);
+  }
+
+  get source(): RepoInfo | undefined {
+    return this.provider.repo;
   }
 
   command(context:ProviderContext): DockerService['command'] {
@@ -108,6 +111,6 @@ export abstract class BaseService implements ServiceInstance {
 
 export class Service extends BaseService {
   addSource(source:RepoInfo) {
-    this.sources.add(source);
+    this.provider.repo = source;
   }
 }

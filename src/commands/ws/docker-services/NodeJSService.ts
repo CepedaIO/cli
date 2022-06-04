@@ -17,17 +17,14 @@ export class NodeJSService extends BaseService {
       ],
       npmLinks: options.npmLinks || [],
       command: options.command || [
-        'yarn install',
-        'yarn dev'
+        'npm install',
+        'npm dev'
       ],
       image: options.image || 'node:16-alpine'
     });
   }
 
-  addSource(url: string, init:string | string[] = 'yarn install') {
-    this.sources.add({
-      url,
-      init
-    });
+  addSource(url: string, init:string | string[] = 'npm install') {
+    this.provider.repo = { url, init };
   }
 }

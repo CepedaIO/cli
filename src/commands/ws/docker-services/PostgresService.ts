@@ -1,4 +1,4 @@
-import {Dict, DockerService, DockerVolume, ProviderContext, ServiceInstance} from "../../../types";
+import {Dict, DockerService, DockerVolume, ProviderContext, ServiceFactory} from "../../../types";
 
 interface ServiceVariables {
   POSTGRES_HOST: string;
@@ -14,7 +14,7 @@ interface ServiceOptions {
   image?: string;
 }
 
-export class PostgresService implements ServiceInstance {
+export class PostgresService implements ServiceFactory {
   constructor(
     public variables: ServiceVariables,
     public _options: ServiceOptions = {}

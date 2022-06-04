@@ -1,4 +1,4 @@
-import {Dict, DockerService, DockerVolume, ProviderContext, ServiceInstance} from "../../../types";
+import {Dict, DockerService, DockerVolume, ProviderContext, ServiceFactory} from "../../../types";
 
 interface ServiceOptions {
   port?: number;
@@ -6,7 +6,7 @@ interface ServiceOptions {
   image?: string;
 }
 
-export class RedisService implements ServiceInstance {
+export class RedisService implements ServiceFactory {
   constructor(
     public _options: ServiceOptions = {}
   ) {}
