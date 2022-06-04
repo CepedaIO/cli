@@ -11,17 +11,25 @@ export class NodeJSService extends BaseService {
     public port: number,
     public options: Options = {}
   ) {
-    super({
+    const provider = {
       ports: [
         `${port}:${port}`
       ],
       npmLinks: options.npmLinks || [],
-      command: options.command || [
-        'npm install',
-        'npm dev'
-      ],
-      image: options.image || 'node:16-alpine'
-    });
+      command: options.command,
+      image: options.image
+    };
+
+    if(!options.command && !options.image) {
+      provider.command = [
+        'yarn install',
+        'yarn dev'
+      ];
+
+      provider.image = 'node:16-alpine';
+    }
+
+    super(provider);
   }
 
   addSource(url: string, init:string | string[] = 'npm install') {
