@@ -10,7 +10,7 @@ import {providerFromProject} from "../../services/providerFromProject";
 import {generateEnv} from "./generateEnvFile";
 import {generateEntrypoint} from "./generateEntrypoints";
 import {rm} from "fs/promises";
-import {distDir} from "../../../../config/app";
+import {distDir} from "../../../../configs/app";
 import {composer} from "../../services/composer";
 import {addSources} from "../../services/addSources";
 import {createSources} from "../../services/createSources";

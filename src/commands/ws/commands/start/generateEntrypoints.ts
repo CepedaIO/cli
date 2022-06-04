@@ -6,7 +6,7 @@ import {
 } from "../../../../types";
 import {normalize} from "path";
 import {chmod, writeFile} from "fs/promises";
-import {distDir} from "../../../../config/app";
+import {distDir} from "../../../../configs/app";
 import {iProject} from "../../models/Project";
 
 export async function generateEntrypoint(project:iProject, provider: NormalizedComposeProvider, options: StartOptions) {

@@ -1,7 +1,7 @@
 import { JSAML } from "@vlegm/utils"
 import {existsSync} from "fs";
 
-import { dataDir } from "../../../config/app";
+import { dataDir } from "../../../configs/app";
 import { iProject, Project } from "./Project";
 
 export interface Application {

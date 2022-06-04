@@ -1,6 +1,6 @@
 import {createTemplateData} from "./createTemplateData";
 import {readFileSync} from "fs";
-import {assetsDir} from "../../../../config/app";
+import {assetsDir} from "../../../../configs/app";
 import {render} from "ejs";
 import {WorkstationAnswers} from "../../../../types";
 

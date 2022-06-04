@@ -8,7 +8,7 @@ import chalk from "chalk";
 import packageJSON from "./package.json";
 import tsconfigJSON from "./tsconfig.json";
 import {writeFile} from "fs/promises";
-import {rootDir} from "../../../../config/app";
+import {rootDir} from "../../../../configs/app";
 import {providerFromProject} from "../../services/providerFromProject";
 import {addSources} from "../../services/addSources";
 import {composer} from "../../services/composer";

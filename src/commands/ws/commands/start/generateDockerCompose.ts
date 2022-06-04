@@ -5,7 +5,7 @@ import {
 import {processServices} from "./processServices";
 import {validateSchema} from "../../services/validateSchema";
 import {readFile} from "fs/promises";
-import {assetsDir} from "../../../../config/app";
+import {assetsDir} from "../../../../configs/app";
 import {DockerCompose} from "../../../../docker-compose";
 import chalk from "chalk";
 import {processVolumes} from "./processVolumes";

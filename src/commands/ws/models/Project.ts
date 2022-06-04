@@ -1,4 +1,4 @@
-import {dataDir} from "../../../config/app";
+import {dataDir} from "../../../configs/app";
 import { promises, existsSync } from "fs";
 import {normalize} from "path";
 import {JSAML} from "@vlegm/utils";

@@ -1,6 +1,6 @@
 import {promises} from "fs";
 import { normalize, basename } from "path";
-import {assetsDir} from "../../../../config/app";
+import {assetsDir} from "../../../../configs/app";
 import {createComposeProvider} from "./createComposeProvider";
 import { run } from "@vlegm/utils";
 import {getRoot} from "../../services/getRoot";

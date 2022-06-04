@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { buildProgram } from './utils/register';
-import { srcDir } from './config/app';
+import { srcDir } from './configs/app';
 import {init} from "./scripts/init";
 
 init().then(() => {

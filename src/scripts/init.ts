@@ -1,6 +1,6 @@
 import {Application} from "../commands/ws/models/Application";
 import {existsSync} from "fs";
-import {dataDir} from "../config/app";
+import {dataDir} from "../configs/app";
 import {mkdir} from "fs/promises";
 
 export async function init() {
