@@ -10,6 +10,7 @@ interface ShellOptions {
   containerDest?: string // /mnt/host
   ssh?: boolean // false
   docker?: boolean // false
+  environment?: NodeJS.Dict<string>
 }
 
 register('shell [image] [cmd]', (program: Command) => {
@@ -45,6 +46,13 @@ export async function shell(image = 'vlegm/dev-alpine:latest', cmd = '/bin/zsh',
     args.push.apply(args, [
       '-v', `${sshDir}:/mnt/.ssh`
     ]);
+  }
+
+  if(options.environment) {
+    Object.entries(options.environment).forEach(([key, value]) => {
+      args.push(`-e`);
+      args.push(`${key}=${value}`);
+    });
   }
 
   await run('docker', [
