@@ -7,8 +7,8 @@ export async function exclude(service?: string, projectName?: string) {
   const project = await getProject(projectName, service);
 
   if(serviceExists(service, project)) {
-    if (!project.excluded.includes(service!)) {
-      project.excluded.push(service!);
+    if (!project.excluded.includes(service)) {
+      project.excluded.push(service);
     }
 
     project.hash = '';

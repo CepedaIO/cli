@@ -23,7 +23,7 @@ export default {
   pgadmin: {
     image: 'dpage/pgadmin4:latest',
     ports: [
-      '80:8081'
+      '8081:80'
     ],
     volumes: [
       'pgadmin:/var/lib/pgadmin'

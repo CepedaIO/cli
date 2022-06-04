@@ -9,8 +9,8 @@ export async function restart(service?:string, projectName?: string) {
     /**
      * service provided, restart for service
      */
-    await run('docker-compose', ['rm', '-fs', service!], project.root);
-    await run('docker-compose', ['up', '-d', service!], project.root);
+    await run('docker-compose', ['rm', '-fs', service], project.root);
+    await run('docker-compose', ['up', '-d', service], project.root);
   } else {
     /**
      * No service provided, restart whole project
