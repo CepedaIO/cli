@@ -5,16 +5,7 @@ import {chmod, writeFile} from "fs/promises";
 import {isFunction} from "@vlegm/utils";
 import {entrypointActionsFromLinks} from "./entrypointActionsFromLinks";
 import {tuple} from "./tuple";
-
-function removeFields(obj: Object, fields: string[]): Object {
-  return Object.entries(obj).reduce((res, [field, value]) => {
-    if(value !== null && value !== undefined && !fields.includes(field)) {
-      res[field] = value;
-    }
-
-    return res;
-  }, {});
-}
+import {removeFields} from "../../services/removeFields";
 
 function resolveProvider<T>(provider: Provider<T> | undefined, context:ProviderContext): T  | undefined {
   if(isFunction(provider)) {

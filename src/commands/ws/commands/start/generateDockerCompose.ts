@@ -7,6 +7,7 @@ import {
 } from "../../../../types";
 import {iProject} from "../../models/Project";
 import {processServiceProvider} from "./processServiceProvider";
+import {filterFields, removeFields} from "../../services/removeFields";
 
 async function processServices(project:iProject, env:string, providers: ComposeProvider['services'], commandOptions:CommandOptions): Promise<Dict<DockerService>> {
   let services = {};
@@ -28,7 +29,7 @@ async function processServices(project:iProject, env:string, providers: ComposeP
 export async function generateDockerCompose(project:iProject, config:ComposeProvider, env:string, options:CommandOptions): Promise<DockerCompose> {
   const services = await processServices(project, env, config.services, options);
 
-  return {
+  return filterFields({
     ...config,
     services
   };
