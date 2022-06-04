@@ -67,4 +67,20 @@ describe('ws.start - Empty Project', () => {
       ['Would you also like to delete the project\'s directory?', 'n']
     ]);
   });
+
+  it('should not show tmp project as created', async function() {
+    this.timeout(0);
+    const user = new MockCLIUser('vlm', ['ws', 'projects'], config.tmpDir);
+    let err;
+
+    try {
+      await user.test([
+        "tmp"
+      ]);
+    } catch(e) {
+      err = e;
+    }
+
+    expect(err.message).to.equal('Waiting for timeout reached: tmp');
+  })
 });
