@@ -1,27 +1,28 @@
-import {NormalizedComposeProvider, RepoInfo} from "../../../types";
-import {Service} from "../docker-services";
 import {existsSync} from "fs";
 import {mkdir} from "fs/promises";
 import {run} from "@vlegm/utils";
 import chalk from "chalk";
-import {addSource} from "./compose";
+import {Composer} from "./composer";
+import {iProject, Project} from "../models/Project";
 
-
-
-export async function createSources(servicesRoot: string): Promise<any> {
-  if(!existsSync(servicesRoot)) {
-    await mkdir(servicesRoot);
+export async function createSources(project:iProject, composer:Composer): Promise<any> {
+  if(project.sources.initialized.length === 0 &&!existsSync(project.services.root)) {
+    await mkdir(project.services.root);
   }
 
   let tail = Promise.resolve();
-  for(const [serviceName, source] of sources.entries()) {
-    const serviceRoot = `${servicesRoot}/${serviceName}`;
+  for(const [serviceName, source] of composer.getSources().entries()) {
+    if(project.sources.initialized.includes(serviceName)) {
+      break;
+    }
+
+    const serviceRoot = `${project.services.root}/${serviceName}`;
 
     if(!existsSync(serviceRoot)) {
       console.log(`Cloning repo for: ${chalk.greenBright(serviceName)}`);
 
       tail = tail
-        .then(() => run('git', ['clone', source.url, serviceName], { cwd: servicesRoot }))
+        .then(() => run('git', ['clone', source.url, serviceName], { cwd: project.services.root }))
         .then(async () => {
           const runCommand = async (init:string) => {
             const command = init.split(' ');
@@ -38,7 +39,11 @@ export async function createSources(servicesRoot: string): Promise<any> {
           } else if(source.init) {
             await runCommand(source.init);
           }
-        });
+        })
+        .then(async () => {
+          project.sources.initialized.push(serviceName);
+          await Project.save(project);
+        })
     }
   }
 

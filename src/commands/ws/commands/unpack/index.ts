@@ -11,7 +11,9 @@ import tsconfigJSON from "./tsconfig.json";
 import {writeFile} from "fs/promises";
 import {projectDir} from "../../../../config/app";
 import {providerFromProject} from "../../services/providerFromProject";
-import {addSources, createSources} from "../../services/sources";
+import {addSources} from "../../services/addSources";
+import {composer} from "../../services/composer";
+import {createSources} from "../../services/createSources";
 
 export async function unpack(projectName?: string) {
   if(!existsSync('./compose-provider.ts')) {
@@ -43,6 +45,6 @@ export async function unpack(projectName?: string) {
   });
 
   const provider:NormalizedComposeProvider = providerFromProject(project);
-  addSources(provider);
-  await createSources(project.servicesRoot);
+  addSources(composer, provider);
+  await createSources(project, composer);
 }

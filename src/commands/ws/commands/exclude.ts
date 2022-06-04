@@ -7,17 +7,17 @@ export async function exclude(serviceName?: string, projectName?: string) {
   const project = await getProject(projectName, serviceName);
 
   if(serviceExists(serviceName, project)) {
-    if (!project.excluded.includes(serviceName)) {
-      project.excluded.push(serviceName);
+    if (!project.services.excluded.includes(serviceName)) {
+      project.services.excluded.push(serviceName);
     }
 
     project.hash = '';
     await Project.save(project);
   }
 
-  if(project.excluded.length === 0) {
+  if(project.services.excluded.length === 0) {
     console.log(`${chalk.redBright('Nothing')} excluded!`);
   } else {
-    console.log(`Excluded:\n\t${chalk.greenBright(project.excluded.join('\n\t'))}`);
+    console.log(`Excluded:\n\t${chalk.greenBright(project.services.excluded.join('\n\t'))}`);
   }
 }

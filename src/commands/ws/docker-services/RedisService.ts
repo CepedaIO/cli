@@ -13,7 +13,7 @@ export class RedisService implements ServiceInstance {
 
   get options(): Required<ServiceOptions> {
     return {
-      image: this._options.image || 'redis:5.0.7',
+      image: this._options.image || 'redis:6-alpine',
       port: this._options.port || 6379,
       volumeName: this._options.volumeName || 'redis'
     };

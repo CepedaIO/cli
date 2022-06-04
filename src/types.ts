@@ -23,8 +23,6 @@ export interface StartOptions {
   build: boolean;
   generate: boolean;
   hasEnvFile: boolean;
-  excluded: string[];
-  root: string;
 }
 
 export function isRepoReference(obj:any): obj is isRepoReference {
@@ -49,23 +47,23 @@ export interface WorkstationAnswers {
 
 export type FieldProvider<T> = T | ((context: ProviderContext) => T);
 export type MapAsProvider<T, K extends keyof T> = Omit<T, K> & {
-  [Key in K]: FieldProvider<T[K]>
+  [Key in K]: FieldProvider<T[Key]>
 } & ServiceProviderOptionals;
 
 export interface ServiceProviderOptionals {
   env?: Dict<string | number>;
-  repo?: RepoInfo
-  mnts?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
+  repo?: RepoInfo;
+  npmLinks?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
 }
 
-type _ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'build' | 'volumes'>;
-export type ServiceProvider = Omit<_ServiceProvider, 'env_file'>;
+export type ServiceProviderKeys = 'command' | 'image' | 'build' | 'volumes'
+export type ServiceProvider = Omit<MapAsProvider<DockerService, ServiceProviderKeys>, 'env_file'>;
 export type isRepoReference = RequireBy<ServiceProvider, 'repo'>;
 
 export interface ProviderContext {
   name: string;
   options: StartOptions;
-  command?: string | string[];
+  needsEntrypoint?: boolean;
 }
 
 export interface ComposeProvider {
@@ -77,11 +75,15 @@ export interface ComposeProvider {
 }
 
 export interface NormalizedComposeProvider extends ComposeProvider {
-  services: Dict<ServiceInstance>;
+  services: Dict<NormalizedServiceInstance>;
 }
 
 export interface ServiceInstance {
   env?(context: ProviderContext): Dict<string | number>;
   service(context: ProviderContext): DockerService;
   volumes?(context:ProviderContext): Dict<DockerVolume>;
+}
+
+export interface NormalizedServiceInstance extends ServiceInstance {
+  name: string;
 }

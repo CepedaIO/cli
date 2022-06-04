@@ -22,7 +22,7 @@ export class PostgresService implements ServiceInstance {
 
   get options(): Required<ServiceOptions> {
     return {
-      image: this._options.image || 'postgres:11.6',
+      image: this._options.image || 'postgres:14-alpine',
       port: this._options.port || 5432,
       volumeName: this._options.volumeName || 'postgres'
     };

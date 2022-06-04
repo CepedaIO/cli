@@ -22,8 +22,10 @@ export function providerFromProject(project: iProject): NormalizedComposeProvide
 
   for(const [serviceName, serviceDef] of Object.entries(defaultExport.services)) {
     if(isServiceProvider(serviceDef)) {
-      defaultExport.services[serviceName] = new Service(serviceDef);
+      defaultExport.services[serviceName] = new Service(serviceDef);;
     }
+
+    defaultExport.services[serviceName].name = serviceName;
   }
 
   return defaultExport;

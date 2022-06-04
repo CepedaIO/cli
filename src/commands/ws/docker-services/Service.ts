@@ -4,18 +4,13 @@ import {
   FieldProvider,
   ProviderContext, RepoInfo,
   ServiceInstance,
-  ServiceProvider
+  ServiceProvider,
 } from "../../../types";
-import {tuple} from "../commands/start/tuple";
 import {isFunction} from "@vlegm/utils";
-import {sources} from "../services/sources";
+import {composer} from "../services/composer";
+import {basename, isAbsolute} from "path";
 
-export function isNPMLink(link: string): boolean {
-  const [,linkName] = tuple(link);
-  return !!linkName;
-}
-
-export function resolveProvider<T>(fieldProvider: FieldProvider<T> | undefined, context:ProviderContext): T  | undefined {
+export function resolveField<T>(fieldProvider:FieldProvider<T>, context:ProviderContext): T  | undefined {
   if(isFunction(fieldProvider)) {
     return fieldProvider(context);
   }
@@ -23,23 +18,25 @@ export function resolveProvider<T>(fieldProvider: FieldProvider<T> | undefined, 
   return fieldProvider;
 }
 
-function getVolumes(serviceProvider: ServiceProvider, context: ProviderContext) {
-  const volumes = resolveProvider(serviceProvider.volumes as string[], context) || [];
+function getVolumes(serviceInst: BaseService, context: ProviderContext) {
+  const volumes = resolveField(serviceInst.provider.volumes, context) || [];
 
-  if(sources.has(context.name)) {
-    volumes.push(`./services/${context.name}:/mnt/host`)
+  if(composer.getSources().has(serviceInst.name)) {
+    volumes.push(`./services/${serviceInst.name}:/mnt/host`)
   }
 
-  if(serviceProvider.mnts) {
-    const linkVolumes = serviceProvider.mnts.map((link) => {
-      const [serviceName] = tuple(link);
-      return `./services/${serviceName}:/mnt/${serviceName}`;
-    });
+  const linkVolumes = serviceInst.npmLinks().map((serviceName) => {
+    if(isAbsolute(serviceName)) {
+      const folderName = basename(serviceName);
+      return `${serviceName}:/mnt/${folderName}`;
+    }
 
-    volumes.push.apply(volumes, linkVolumes);
-  }
+    return `./services/${serviceName}:/mnt/${serviceName}`;
+  });
 
-  if(serviceProvider.mnts || Array.isArray(context.command)) {
+  volumes.push.apply(volumes, linkVolumes);
+
+  if(serviceInst.needsEntrypoint(context)) {
     const entrypointName = `${context.name}-entrypoint.sh`;
     const entrypointPath = `./.dist/${entrypointName}`;
     volumes.push(`${entrypointPath}:/mnt/entrypoint.sh`)
@@ -50,6 +47,7 @@ function getVolumes(serviceProvider: ServiceProvider, context: ProviderContext) 
 
 export abstract class BaseService implements ServiceInstance {
   sources: Set<RepoInfo> = new Set();
+  name!: string;
 
   constructor(
     public provider: ServiceProvider
@@ -59,18 +57,26 @@ export abstract class BaseService implements ServiceInstance {
     }
   }
 
-  command(context:ProviderContext): string | string[] | undefined {
-    return resolveProvider(this.provider.command, context) as string | string[] | undefined;
+  linkWithNPM(serviceName: string) {
+    if(!this.provider.npmLinks) {
+      this.provider.npmLinks = [];
+    }
+
+    this.provider.npmLinks.push(serviceName);
+  }
+
+  command(context:ProviderContext): DockerService['command'] {
+    return resolveField(this.provider.command, context);
   }
 
   service(context: ProviderContext): DockerService {
     const command = this.command(context);
     const service = {
       ...this.provider,
-      volumes: getVolumes(this.provider, context),
+      volumes: getVolumes(this, context),
       command: !Array.isArray(command) ? command : undefined,
-      image: resolveProvider(this.provider.image, context),
-      build: resolveProvider(this.provider.build, context),
+      image: resolveField(this.provider.image, context),
+      build: resolveField(this.provider.build, context),
       working_dir: '/mnt/host'
     } as DockerService;
 
@@ -88,7 +94,7 @@ export abstract class BaseService implements ServiceInstance {
   }
 
   npmLinks() {
-    return !this.provider.mnts ? [] : this.provider.mnts.filter(isNPMLink);
+    return this.provider.npmLinks || [];
   }
 
   hasNPMLinks(): boolean {

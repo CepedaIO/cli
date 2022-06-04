@@ -8,11 +8,15 @@ const { readdir, mkdir, rm } = promises;
 
 export interface iProject {
   name: string;
-  root: string;
-  servicesRoot: string;
   hash?: string;
-  workstation?: string;
-  excluded: string[];
+  root: string;
+  sources: {
+    initialized: string[];
+  }
+  services: {
+    root: string;
+    excluded: string[];
+  }
 }
 
 function dataURL(name:string) {
@@ -23,7 +27,7 @@ function projectURL(name:string) {
 }
 
 export function getServiceRoot(project:iProject, serviceName: string) {
-  return `${project.servicesRoot}/${serviceName}`;
+  return `${project.services.root}/${serviceName}`;
 }
 
 export const Project = {
@@ -33,8 +37,13 @@ export const Project = {
     const project = {
       name,
       root,
-      servicesRoot,
-      excluded: []
+      sources: {
+        initialized: []
+      },
+      services: {
+        root: servicesRoot,
+        excluded: []
+      }
     }
 
     await Project.save(project);

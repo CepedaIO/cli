@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { buildProgram } from './utils/register';
 import { rootDir } from './config/app';
-import chalk from 'chalk';
 import {init} from "./scripts/init";
 
 init().then(() => {
@@ -13,4 +12,4 @@ init().then(() => {
 
 export * from "./types";
 export * from "./commands/ws/docker-services";
-export { addSource, addNodeJSSource } from "./commands/ws/services/sources";
+export { composer } from "./commands/ws/services/composer";

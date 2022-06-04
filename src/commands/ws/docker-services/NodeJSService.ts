@@ -1,12 +1,12 @@
 import {BaseService} from "./Service";
 
 interface Options {
-  mnts?: string[];
+  npmLinks?: string[];
   command?: string | string[];
   image?: string;
 }
 
-export class NodeJSService extends BaseService{
+export class NodeJSService extends BaseService {
   constructor(
     public port: number,
     public options: Options = {}
@@ -15,12 +15,12 @@ export class NodeJSService extends BaseService{
       ports: [
         `${port}:${port}`
       ],
-      mnts: options.mnts || [],
+      npmLinks: options.npmLinks || [],
       command: options.command || [
         'yarn install',
         'yarn dev'
       ],
-      image: options.image || 'vlegm/dev-alpine:latest'
+      image: options.image || 'node:16-alpine'
     });
   }
 

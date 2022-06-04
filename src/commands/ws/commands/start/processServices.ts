@@ -5,12 +5,13 @@ import {
   ProviderContext,
   NormalizedComposeProvider
 } from "../../../../types";
+import {iProject} from "../../models/Project";
 
-export async function processServices(provider: NormalizedComposeProvider, options:StartOptions): Promise<Dict<DockerService>> {
+export async function processServices(project:iProject, provider: NormalizedComposeProvider, options:StartOptions): Promise<Dict<DockerService>> {
   let services = {};
 
-  for (const [serviceName, serviceDef] of Object.entries(provider.services || {})) {
-    if(options.excluded.includes(serviceName)) {
+  for (const [serviceName, serviceInst] of Object.entries(provider.services || {})) {
+    if(project.services.excluded.includes(serviceName)) {
       break;
     }
 
@@ -19,8 +20,8 @@ export async function processServices(provider: NormalizedComposeProvider, optio
       options
     };
 
-    if(serviceDef) {
-      services[serviceName] = serviceDef.service(context);
+    if(serviceInst) {
+      services[serviceName] = serviceInst.service(context);
 
       if(services[serviceName] && options.hasEnvFile) {
         services[serviceName].env_file = `./.dist/.env`;

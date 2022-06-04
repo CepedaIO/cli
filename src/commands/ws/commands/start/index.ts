@@ -10,8 +10,6 @@ export async function start(serviceName?:string, projectName?: string, options?:
   const project = await getProject(projectName, serviceName);
 
   options!.env = 'local';
-  options!.excluded = project.excluded;
-  options!.root = project.root;
 
   await generateStartFiles(project, options!);
 
