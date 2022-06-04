@@ -2,8 +2,7 @@ import {existsSync} from "fs";
 import {run} from "@vlegm/utils";
 import {basename} from "path";
 import {Project} from "../../models/Project";
-import {ComposeProvider} from "../../../../types";
-import {createRepos} from "../init/createRepos";
+import {NormalizedComposeProvider} from "../../../../types";
 import {JSAML} from "@vlegm/utils";
 import chalk from "chalk";
 
@@ -11,6 +10,8 @@ import packageJSON from "./package.json";
 import tsconfigJSON from "./tsconfig.json";
 import {writeFile} from "fs/promises";
 import {projectDir} from "../../../../config/app";
+import {providerFromProject} from "../../services/providerFromProject";
+import {addSources, createSources} from "../../services/sources";
 
 export async function unpack(projectName?: string) {
   if(!existsSync('./compose-provider.ts')) {
@@ -41,6 +42,7 @@ export async function unpack(projectName?: string) {
     shell: true
   });
 
-  const config:ComposeProvider = require(`${project.root}/dist/compose-provider.js`).default;
-  await createRepos(project, config);
+  const provider:NormalizedComposeProvider = providerFromProject(project);
+  addSources(provider);
+  await createSources(project.servicesRoot);
 }

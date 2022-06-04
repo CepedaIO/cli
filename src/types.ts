@@ -14,11 +14,17 @@ export interface RepoInfo {
   init?: string;
 }
 
+export interface PortBind {
+  host: number;
+  container: number;
+}
 export interface StartOptions {
   env: string;
   build: boolean;
   generate: boolean;
   hasEnvFile: boolean;
+  excluded: string[];
+  root: string;
 }
 
 export function isRepoReference(obj:any): obj is isRepoReference {
@@ -68,6 +74,10 @@ export interface ComposeProvider {
   predefined?: string[];
   services?: Dict<ServiceProvider | ServiceInstance>;
   volumes?: Dict<DockerVolume>;
+}
+
+export interface NormalizedComposeProvider extends ComposeProvider {
+  services: Dict<ServiceInstance>;
 }
 
 export interface ServiceInstance {

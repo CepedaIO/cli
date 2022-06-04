@@ -1,8 +1,7 @@
 import {
   StartOptions,
-  ComposeProvider
+  NormalizedComposeProvider
 } from "../../../../types";
-import {iProject} from "../../models/Project";
 import {processServices} from "./processServices";
 import {validateSchema} from "../../services/validateSchema";
 import {readFile} from "fs/promises";
@@ -12,12 +11,12 @@ import chalk from "chalk";
 import {processVolumes} from "./processVolumes";
 import {JSAML} from "@vlegm/utils";
 
-export async function createDockerCompose(project:iProject, config:ComposeProvider, options:StartOptions): Promise<DockerCompose> {
+export async function createDockerCompose(config:NormalizedComposeProvider, options:StartOptions): Promise<DockerCompose> {
   const schemaBuffer = await readFile(`${assetsDir}/docker-compose.schema.json`);
   const schema = JSON.parse(schemaBuffer.toString('utf-8'));
   const compose = {
     ...config,
-    services: await processServices(project, config, options),
+    services: await processServices(config, options),
     volumes: await processVolumes(config, options)
   };
 
@@ -33,8 +32,8 @@ export async function createDockerCompose(project:iProject, config:ComposeProvid
   return result.result as DockerCompose;
 }
 
-export async function generateDockerCompose(project:iProject, config:ComposeProvider, options:StartOptions): Promise<void>{
-  const compose = await createDockerCompose(project, config, options);
+export async function generateDockerCompose(config:NormalizedComposeProvider, options:StartOptions): Promise<void>{
+  const compose = await createDockerCompose(config, options);
   console.log(`Creating: ${chalk.greenBright('docker-compose.yaml')}`);
-  await JSAML.save(compose, `${project.root}/docker-compose.yaml`);
+  await JSAML.save(compose, `${options.root}/docker-compose.yaml`);
 }

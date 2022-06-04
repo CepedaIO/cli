@@ -1,42 +1,16 @@
 import {
-  ComposeProvider,
-  isServiceProvider,
+  NormalizedComposeProvider,
   ProviderContext,
-  ServiceProvider,
   StartOptions
 } from "../../../../types";
 import {tuple} from "./tuple";
 import {normalize} from "path";
 import {chmod, writeFile} from "fs/promises";
-import {iProject} from "../../models/Project";
-import {resolveProvider} from "./processServices";
+import {Service} from "../../docker-services";
+import {distDir} from "../../../../config/app";
 
-function hasNPMLinks(serviceProvider: ServiceProvider): boolean {
-  if(!serviceProvider.mnts) {
-    return false;
-  }
-
-  const npmLinks = getNPMLinks(serviceProvider);
-  return npmLinks.length > 0;
-}
-
-function getNPMLinks(serviceProvider: ServiceProvider): string[] {
-  if(!serviceProvider.mnts) {
-    return [];
-  }
-
-  return serviceProvider.mnts.filter((link) => {
-    const [,linkName] = tuple(link);
-    return !!linkName;
-  });
-}
-
-function entrypointActionsFromLinks(serviceProvider: ServiceProvider): string[] {
-  if(!serviceProvider.mnts) {
-    return [];
-  }
-
-  const npmLinks = getNPMLinks(serviceProvider);
+function entrypointActionsFromLinks(instance: Service): string[] {
+  const npmLinks = instance.npmLinks();
 
   let actions = [
     'cwd=$PWD'
@@ -57,13 +31,9 @@ function entrypointActionsFromLinks(serviceProvider: ServiceProvider): string[] 
   return actions;
 }
 
-function generateEntrypointLines(provider: ServiceProvider, context:ProviderContext) {
-  let actions: string[] = [];
-  const command = resolveProvider(provider.command, context);
-
-  if(provider.mnts) {
-    actions = entrypointActionsFromLinks(provider);
-  }
+function generateEntrypointLines(instance: Service, context:ProviderContext) {
+  let actions: string[] = entrypointActionsFromLinks(instance);
+  const command = instance.command(context);
 
   if(Array.isArray(command)) {
     actions = actions.concat(command as string[]);
@@ -74,8 +44,8 @@ function generateEntrypointLines(provider: ServiceProvider, context:ProviderCont
       actions.push(command);
     }
 
-    if(provider.entrypoint) {
-      actions.push(`sh ${provider.entrypoint}`);
+    if(instance.provider.entrypoint) {
+      actions.push(`sh ${instance.provider.entrypoint}`);
     }
 
     actions.unshift('#!/usr/bin/env sh');
@@ -84,25 +54,21 @@ function generateEntrypointLines(provider: ServiceProvider, context:ProviderCont
   return actions;
 }
 
-export function needsEntrypoint(serviceProvider:ServiceProvider, context: ProviderContext) {
-  const command = resolveProvider(serviceProvider.command, context);
-  return hasNPMLinks(serviceProvider) || Array.isArray(command);
-}
+export async function generateEntrypoint(provider: NormalizedComposeProvider, options: StartOptions) {
+  for(const [serviceName, serviceDef] of Object.entries(provider.services)) {
+    if(serviceDef instanceof Service) {
+      const context:ProviderContext = {
+        name: serviceName,
+        options
+      };
 
-export async function generateEntrypoint(project:iProject, provider: ComposeProvider, options: StartOptions) {
-  for(const [serviceName, serviceDef] of Object.entries((provider.services || {}))) {
-    const context:ProviderContext = {
-      name: serviceName,
-      options
-    };
-
-    if(isServiceProvider(serviceDef) && needsEntrypoint(serviceDef, context)) {
-      const lines = generateEntrypointLines(serviceDef, context);
-
-      const entrypointName = `${context.name}-entrypoint.sh`;
-      const entrypointPath = normalize(`${project.root}/dist/${entrypointName}`);
-      await writeFile(entrypointPath, lines.join('\n'));
-      await chmod(entrypointPath, "755");
+      if(serviceDef.needsEntrypoint(context)) {
+        const lines = generateEntrypointLines(serviceDef, context);
+        const entrypointName = `${context.name}-entrypoint.sh`;
+        const entrypointPath = normalize(`${distDir(options.root)}/${entrypointName}`);
+        await writeFile(entrypointPath, lines.join('\n'));
+        await chmod(entrypointPath, "755");
+      }
     }
   }
 }

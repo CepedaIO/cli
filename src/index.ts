@@ -13,3 +13,4 @@ init().then(() => {
 
 export * from "./types";
 export * from "./commands/ws/docker-services";
+export { addSource } from "./commands/ws/services/sources";

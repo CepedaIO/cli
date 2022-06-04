@@ -1,6 +1,13 @@
-import {ComposeProvider, Dict, DockerVolume, isServiceInstance, ProviderContext, StartOptions} from "../../../../types";
+import {
+  Dict,
+  DockerVolume,
+  isServiceInstance,
+  NormalizedComposeProvider,
+  ProviderContext,
+  StartOptions
+} from "../../../../types";
 
-export async function processVolumes(provider: ComposeProvider, options: StartOptions): Promise<Dict<DockerVolume>> {
+export async function processVolumes(provider: NormalizedComposeProvider, options: StartOptions): Promise<Dict<DockerVolume>> {
   let volumes: Dict<{}> = {};
 
   for (const [serviceName, serviceDef] of Object.entries(provider.services || {})) {

@@ -3,7 +3,7 @@ export default {
     "module": "CommonJS",
     "target": "ESNext",
     "moduleResolution": "node",
-    "outDir": "dist"
+    "outDir": ".dist"
   },
   "exclude": [
     "node_modules",
