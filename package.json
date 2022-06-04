@@ -1,6 +1,6 @@
 {
   "name": "@vlegm/cli",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "CLI tool for developers",
   "author": "Alfred Cepeda",
   "license": "ISC",
@@ -17,7 +17,7 @@
     "generate": "json2ts assets/docker-compose.schema.json > src/docker-compose.ts",
     "test": "mocha --exit --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
     "e2e": "mocha --require ts-node/register 'tests/e2e/specs/**/*.specs.ts'",
-    "e2e:image": "node ./dist/cli shell -d -i src,tests vlegm/cli yarn e2e",
+    "e2e:image": "vlm shell -d -i src,tests vlegm/cli yarn e2e",
     "test:watch": "mocha -w --watch-extensions ts --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
     "prepublishOnly": "yarn build"
   },
