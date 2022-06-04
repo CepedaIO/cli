@@ -1,6 +1,7 @@
 import {NormalizedComposeProvider, ProviderContext, StartOptions} from "../../../../types";
 import chalk from "chalk";
 import {writeFile} from "fs/promises";
+import {iProject} from "../../models/Project";
 
 function generateEnvLines(provider:NormalizedComposeProvider, options:StartOptions): string[] {
   let lines:string[] = [];
@@ -23,13 +24,12 @@ function generateEnvLines(provider:NormalizedComposeProvider, options:StartOptio
   return lines;
 }
 
-export async function generateEnv(provider:NormalizedComposeProvider, options:StartOptions): Promise<boolean> {
+export async function generateEnv(project:iProject, provider:NormalizedComposeProvider, options:StartOptions): Promise<boolean> {
   const lines = generateEnvLines(provider, options);
 
   if(lines.length > 0) {
-    const envPath = `./.dist/.env`;
-    console.log(`Creating: ${chalk.greenBright(envPath)}`);
-    await writeFile(envPath, lines.join('\n'), 'utf-8');
+    console.log(`Creating: ${chalk.greenBright('.env')}`);
+    await writeFile(`${project.root}/.dist/.env`, lines.join('\n'), 'utf-8');
   }
 
   return lines.length > 0;

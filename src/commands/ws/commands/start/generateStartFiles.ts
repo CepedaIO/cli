@@ -49,7 +49,7 @@ export async function generateStartFiles(project: iProject, options: StartOption
     const provider:NormalizedComposeProvider = providerFromProject(project);
     addSources(composer, provider);
     await createSources(project, composer);
-    options.hasEnvFile = await generateEnv(provider, options);
+    options.hasEnvFile = await generateEnv(project, provider, options);
     await generateDockerCompose(project, provider, options);
     await generateEntrypoint(project, provider, options);
   }

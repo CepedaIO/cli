@@ -6,7 +6,6 @@ import {serviceExists} from "../../services/serviceExists";
 import {getProject} from "../../prompts/getProject";
 
 export async function start(serviceName?:string, projectName?: string, options?: StartOptions) {
-  console.log('before');
   const project = await getProject(projectName, serviceName);
 
   options!.env = 'local';
