@@ -31,7 +31,7 @@ export async function unpack(projectName?: string) {
   });
 
   console.log('Building project...');
-  await run('yarn', ['build'], {
+  await run('npx', ['tsc'], {
     cwd: project.root,
     shell: true
   });
