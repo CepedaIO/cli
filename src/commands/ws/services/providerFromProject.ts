@@ -5,7 +5,7 @@ import {
   isServiceProvider,
   NormalizedComposeProvider
 } from "../../../types";
-import {Service} from "../docker-services";
+import {ServiceFactory} from "../docker-services";
 import {composer} from "./composer";
 
 export function providerFromProject(project: iProject): NormalizedComposeProvider {
@@ -36,7 +36,7 @@ export function providerFromPath(path:string): any {
   processServiceDefinitions(allExports);
   for(const [serviceName, serviceDef] of Object.entries(services)) {
     if(isServiceProvider(serviceDef)) {
-      services[serviceName] = new Service(serviceDef);
+      services[serviceName] = new ServiceFactory(serviceDef);
     }
 
     services[serviceName].name = serviceName;

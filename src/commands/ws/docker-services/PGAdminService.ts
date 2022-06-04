@@ -1,4 +1,4 @@
-import {Dict, DockerService, DockerVolume, ProviderContext, ServiceFactory} from "../../../types";
+import {Dict, DockerService, DockerVolume, ProviderContext, iServiceFactory} from "../../../types";
 
 interface ServiceVariables {
   PGADMIN_DEFAULT_EMAIL: string;
@@ -10,7 +10,7 @@ interface ServiceOptions {
   image?: string;
 }
 
-export class PGAdminService implements ServiceFactory {
+export class PGAdminService implements iServiceFactory {
   constructor(
     public variables: ServiceVariables,
     public _options: ServiceOptions

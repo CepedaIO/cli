@@ -1,5 +1,4 @@
 import { DockerService, DockerVolume } from "./docker-compose";
-import {BaseService} from "./commands/ws/docker-services";
 
 export * from "./docker-compose";
 
@@ -38,7 +37,7 @@ export function isServiceProvider(obj:any): obj is ServiceProvider {
   return obj.image || obj.build;
 }
 
-export function isServiceInstance(obj:any): obj is ServiceFactory {
+export function isServiceInstance(obj:any): obj is iServiceFactory {
   return obj.env && obj.service;
 }
 
@@ -75,15 +74,15 @@ export interface ComposeProvider {
   version: string;
   env?: Dict<string | number>;
   predefined?: string[];
-  services?: Dict<ServiceProvider | ServiceFactory>;
+  services?: Dict<ServiceProvider | iServiceFactory>;
   volumes?: Dict<DockerVolume>;
 }
 
 export interface NormalizedComposeProvider extends ComposeProvider {
-  services: Dict<ServiceFactory>;
+  services: Dict<iServiceFactory>;
 }
 
-export interface ServiceFactory {
+export interface iServiceFactory {
   source?: RepoInfo;
   env?(context: ProviderContext): Dict<string | number>;
   service(context: ProviderContext): DockerService;

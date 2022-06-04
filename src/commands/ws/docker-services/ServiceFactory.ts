@@ -3,12 +3,15 @@ import {
   DockerService,
   FieldProvider,
   ProviderContext, RepoInfo,
-  ServiceFactory,
+  iServiceFactory,
   ServiceProvider,
 } from "../../../types";
 import {isFunction} from "@vlegm/utils";
 import {composer} from "../services/composer";
 import {basename, isAbsolute} from "path";
+import {iProject} from "../models/Project";
+import {existsSync} from "fs";
+import {readFile} from "fs/promises";
 
 export function resolveField<T>(fieldProvider:FieldProvider<T>, context:ProviderContext): T  | undefined {
   if(isFunction(fieldProvider)) {
@@ -18,7 +21,7 @@ export function resolveField<T>(fieldProvider:FieldProvider<T>, context:Provider
   return fieldProvider;
 }
 
-function getVolumes(serviceInst: BaseService, context: ProviderContext) {
+function getVolumes(serviceInst: ServiceFactory, context: ProviderContext) {
   const volumes = resolveField(serviceInst.provider.volumes, context) || [];
 
   if(composer.getSources().has(serviceInst.name)) {
@@ -45,11 +48,11 @@ function getVolumes(serviceInst: BaseService, context: ProviderContext) {
   return volumes;
 }
 
-export function isBaseService(obj:any): obj is BaseService  {
-  return obj.prototype && obj.prototype instanceof BaseService;
+export function isBaseService(obj:any): obj is ServiceFactory  {
+  return obj.prototype && obj.prototype instanceof ServiceFactory;
 }
 
-export abstract class BaseService implements ServiceFactory {
+export class ServiceFactory implements iServiceFactory {
   public name!: string;
 
   constructor(
@@ -107,10 +110,77 @@ export abstract class BaseService implements ServiceFactory {
   needsEntrypoint(context:ProviderContext): boolean {
     return this.hasNPMLinks() || Array.isArray(this.command(context));
   }
-}
 
-export class Service extends BaseService {
-  addSource(source:RepoInfo) {
-    this.provider.repo = source;
+  addSource(url, init?) {
+    this.provider.repo = { url, init };
+  }
+
+  async getLinkInfo(project: iProject) {
+    let manager;
+
+    if(existsSync(`${project.services.root}/${this.name}/package-lock.json`)) {
+      manager = 'npm';
+    } else if(existsSync(`${project.services.root}/${this.name}/yarn.lock`)) {
+      manager = 'yarn';
+    } else {
+      throw new Error(`Unable to determine package manager for (${this.name}), did you 'yarn install'?`);
+    }
+
+    const nameMap = await this.npmLinks().reduce(async (res, serviceName) => {
+      const path = `${project.services.root}/${serviceName}/package.json`;
+      if(!existsSync(path)) {
+        throw new Error(`Is not an NPM repo: ${serviceName}`)
+      }
+
+      const packageData = await readFile(path, 'utf-8');
+      const packageJSON = JSON.parse(packageData);
+
+      res[serviceName] = packageJSON.name;
+
+      return res;
+    }, {});
+
+    return {
+      manager, nameMap
+    };
+  }
+
+  async entrypointLines(project:iProject, context:ProviderContext): Promise<string[]> {
+    let actions: string[] = [];
+    const command = this.command(context);
+    const npmLinks = this.npmLinks();
+    const info = await this.getLinkInfo(project);
+
+    if(npmLinks.length > 0) {
+      actions.push('cwd=$PWD')
+
+      actions = actions.concat(npmLinks.map((serviceName) => {
+        return `cd /mnt/${serviceName} && ${info.manager} link`;
+      }));
+
+      actions.push(`cd $cwd`);
+
+      actions = actions.concat(npmLinks.map((serviceName) => {
+        return `${info.manager} link ${info.nameMap[serviceName]}`;
+      }));
+    }
+
+    if(Array.isArray(command)) {
+      actions = actions.concat(command as string[]);
+    }
+
+    if(actions.length > 0) {
+      if(typeof command === "string") {
+        actions.push(command);
+      }
+
+      if(this.provider.entrypoint) {
+        actions.push(`sh ${this.provider.entrypoint}`);
+      }
+
+      actions.unshift('#!/usr/bin/env sh');
+    }
+
+    return actions;
   }
 }

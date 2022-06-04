@@ -1,4 +1,4 @@
-import {BaseService} from "./Service";
+import {ServiceFactory} from "./ServiceFactory";
 
 interface Options {
   npmLinks?: string[];
@@ -6,7 +6,7 @@ interface Options {
   image?: string;
 }
 
-export class NodeJSService extends BaseService {
+export class NodeJSService extends ServiceFactory {
   constructor(
     public port: number,
     public options: Options = {}
@@ -33,6 +33,6 @@ export class NodeJSService extends BaseService {
   }
 
   addSource(url: string, init:string | string[] = 'npm install') {
-    this.provider.repo = { url, init };
+    super.addSource(url, init);
   }
 }
