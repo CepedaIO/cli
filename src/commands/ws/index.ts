@@ -19,7 +19,7 @@ register('ws', (program: Command) => {
     .option('-g, --generate', "Only generate startup files, do not start")
     .action(start);
 
-  program.command('exec [project] <service> [command]')
+  program.command('exec <service> <command> [project]')
     .description('Exec command in service\'s container')
     .action(exec);
 
@@ -31,11 +31,11 @@ register('ws', (program: Command) => {
     .description('Initialize a new project')
     .action(init);
 
-  program.command('unpack [projectName]')
+  program.command('unpack [project]')
     .description('Unpack a project from existing compose-provider.ts')
     .action(unpack);
 
-  program.command('default [newDefault]')
+  program.command('default [project]')
     .description('Get/Set the default project for commands')
     .action(defaultProject);
 

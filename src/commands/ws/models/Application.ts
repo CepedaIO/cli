@@ -40,8 +40,16 @@ export const Application = {
     return app.defaults;
   },
 
-  async defaultProject(): Promise<iProject | null> {
+  async defaultProject(): Promise<iProject | undefined> {
     const defaults = await Application.defaults();
-    return defaults.project ? Project.get(defaults.project) : null; 
+    return defaults.project ? Project.get(defaults.project) : undefined;
+  },
+
+  async removeDefaultProject(): Promise<void> {
+    const app = await Application.get();
+    if(app.defaults && app.defaults.project) {
+      delete app.defaults.project
+    }
+    await Application.save(app);
   }
 }

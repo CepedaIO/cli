@@ -47,8 +47,10 @@ export const Project = {
     return JSAML.save(project, projectURL(project.name))
   },
 
-  async get(name: string) {
-    return JSAML.read(projectURL(name)) as Promise<iProject>
+  async get(name: string): Promise<iProject | undefined> {
+    try {
+      return await JSAML.read(projectURL(name))
+    } catch {}
   },
 
   has(name: string) {

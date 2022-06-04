@@ -2,9 +2,9 @@ import {Application} from "../models/Application";
 import {Project} from "../models/Project";
 
 export async function getProject(projectName?: string) {
-  if(!projectName) {
-    return await Application.defaultProject();
+  if(projectName) {
+    return Project.get(projectName);
   }
 
-  return await Project.get(projectName);
+  return Application.defaultProject();
 }

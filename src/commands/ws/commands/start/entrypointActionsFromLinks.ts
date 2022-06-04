@@ -34,8 +34,7 @@ export async function entrypointActionsFromLinks(project:iProject, provider: Ser
   }
 
   if(Array.isArray(service.command)) {
-    actions.push(`arrCmd=("${service.command.join(" ")}")`);
-    actions.push('eval "${arrCmd[$i]}"')
+    actions.push.apply(actions, service.command);
   }
 
   return actions;

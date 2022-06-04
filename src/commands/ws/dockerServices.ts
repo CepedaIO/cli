@@ -1,4 +1,4 @@
-import { DockerService } from "docker-compose";
+  import { DockerService } from "docker-compose";
 import { Dict } from "../../types";
 
 export default {

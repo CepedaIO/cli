@@ -10,7 +10,7 @@ export interface StartOptions {
 }
 
 export async function start(projectName?:string, environment?: string, options?: StartOptions) {
-  const project:iProject | null = await getProject(projectName);
+  const project:iProject | undefined = await getProject(projectName);
 
   if(!project) {
     throw new Error('No default project found, could not start');

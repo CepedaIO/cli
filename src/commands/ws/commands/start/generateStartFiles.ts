@@ -7,6 +7,7 @@ import chalk from "chalk";
 import { generateDockerCompose } from "./generateDockerCompose"
 import { ComposeProvider } from "../../../../types";
 import {StartOptions} from "./index";
+import {writeFile} from "fs/promises";
 
 const { readFile } = promises;
 
@@ -42,11 +43,23 @@ export async function generateStartFiles(project: iProject, environment = 'maste
     await Project.save(project);
 
     console.log(`Configuring for: ${chalk.greenBright(branch)}`);
-    const config:ComposeProvider = require(`${project.root}/dist/compose-provider.js`).default;
+    const provider:ComposeProvider = require(`${project.root}/dist/compose-provider.js`).default;
 
-    const dockerCompose = await generateDockerCompose(project, config, 'local', {
+    const dockerCompose = await generateDockerCompose(project, provider, 'local', {
       test: isTest
     });
+
+    if(provider.env) {
+      const envPath = `./dist/.env`;
+
+      await writeFile(envPath,
+        Object.entries(provider.env)
+          .reduce((res, [flag, value]) => res.concat(`${flag}=${value}`), [] as string[])
+          .join('\n')
+      , 'utf-8');
+
+      Object.values(dockerCompose.services || {}).forEach((value) => value.env_file = envPath);
+    }
 
     await JSAML.save(dockerCompose, `${project.root}/docker-compose.yaml`);
   }

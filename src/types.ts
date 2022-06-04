@@ -56,6 +56,7 @@ export interface ProviderContext {
 
 export interface ComposeProvider {
   version: string;
+  env?: Dict<string>,
   predefined?: Array<keyof typeof dockerServices>,
   services?: Dict<ServiceProvider>;
   volumes?: Dict<DockerVolume>;
