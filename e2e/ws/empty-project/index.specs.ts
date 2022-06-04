@@ -5,7 +5,7 @@ import {copyFiles} from "../../../dist/commands/ws/services/copyFiles";
 import {readdir} from "fs/promises";
 import {expect} from "chai";
 
-describe.only('ws.start - Empty Project', () => {
+describe('ws.start - Empty Project', () => {
   before(async () => {
     await cleanup();
     await setup();
@@ -36,6 +36,10 @@ describe.only('ws.start - Empty Project', () => {
   it('should show project as created', async function() {
     this.timeout(0);
     const user = new MockCLIUser('vlm', ['ws', 'projects'], config.tmpDir);
+
+    await user.test([
+      "tmp"
+    ]);
   })
 
   it('should be able to start', async function() {
@@ -48,8 +52,6 @@ describe.only('ws.start - Empty Project', () => {
       'Hash:',
       'Starting project!'
     ]);
-
-    expect(true).to.equal(true, 'Project started without hanging');
   });
 
   it('should remove project', async function() {

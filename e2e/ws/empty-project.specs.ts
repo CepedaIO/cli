@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {MockCLIUser} from "@vlegm/utils";
 import {config} from "../../configs/e2e";
 
-describe('ws - Empty Project', () => {
+describe.skip('ws.init - Empty Project', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
     const user = new MockCLIUser('vlm', ['ws', 'init', config.project], {

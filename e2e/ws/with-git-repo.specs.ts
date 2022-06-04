@@ -3,7 +3,7 @@ import {existsSync} from "fs";
 import {MockCLIUser} from "@vlegm/utils";
 import {config} from "../../configs/e2e";
 
-describe('ws - Project with git repo ', () => {
+describe.skip('ws.init - Project with git repo ', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
     const user = new MockCLIUser('vlm', ['ws', 'init', config.project], {
