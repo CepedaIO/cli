@@ -1,10 +1,18 @@
 import {iProject} from "../../models/Project";
-import {DockerService, Provider, ProviderContext, ServiceProvider} from "../../../../types";
+import {
+  CommandOptions,
+  ComposeProvider, Dict,
+  DockerService, isServiceProvider,
+  Provider,
+  ProviderContext,
+  ServiceProvider
+} from "../../../../types";
 import {normalize} from "path";
 import {chmod, writeFile} from "fs/promises";
 import {isFunction} from "@vlegm/utils";
 import {entrypointActionsFromLinks} from "./entrypointActionsFromLinks";
 import {tuple} from "./tuple";
+import dockerServices from "../../dockerServices";
 
 function resolveProvider<T>(provider: Provider<T> | undefined, context:ProviderContext): T  | undefined {
   if(isFunction(provider)) {
@@ -35,7 +43,7 @@ function getVolumes(project:iProject, provider: ServiceProvider, context: Provid
 }
 
 async function generateEntrypointFile(project: iProject, provider: ServiceProvider, service: DockerService, context:ProviderContext) {
-  if(provider.links) {
+  if(provider.mnts) {
     const entrypointName = `${context.name}-entrypoint.sh`;
     const entrypointPath = normalize(`${project.root}/dist/${entrypointName}`);
     const actions = await entrypointActionsFromLinks(project, provider, service);
@@ -46,7 +54,7 @@ async function generateEntrypointFile(project: iProject, provider: ServiceProvid
   }
 }
 
-export async function processServiceProvider(project:iProject, provider:ServiceProvider, context:ProviderContext) {
+async function processService(project:iProject, provider:ServiceProvider, context:ProviderContext) {
   const service = {
     ...provider,
     volumes: getVolumes(project, provider, context),
@@ -59,4 +67,29 @@ export async function processServiceProvider(project:iProject, provider:ServiceP
   await generateEntrypointFile(project, provider, service, context);
 
   return service;
+}
+
+export async function processServices(project:iProject, env:string, provider: ComposeProvider, commandOptions:CommandOptions): Promise<Dict<DockerService>> {
+  let services = {};
+  for (const [serviceName, serviceProvider] of Object.entries(provider.services || {})) {
+    if(isServiceProvider(serviceProvider)) {
+      const context:ProviderContext = {
+        name: serviceName,
+        env,
+        commandOptions
+      };
+
+      services[serviceName] = await processService(project, serviceProvider, context);
+    }
+  }
+
+  const predefinedServices = provider.predefined?.reduce((res, serviceName) => ({
+    ...res,
+    [serviceName]: dockerServices[serviceName]
+  }), {});
+
+  return {
+    ...services,
+    ...predefinedServices
+  };
 }
