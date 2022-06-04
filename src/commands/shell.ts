@@ -6,14 +6,16 @@ import { normalize } from 'path';
 import {log1, log2} from "../utils/log";
 
 interface ShellOptions {
-  cwdDest?: string // /mnt/host
+  hostSrc?: string; // process.cwd()
+  containerDest?: string // /mnt/host
   ssh?: boolean // false
   docker?: boolean // false
 }
 
 register('shell [image] [cmd]', (program: Command) => {
   return program.description('Attempt to shell into an image with an auto-removing container')
-    .option('-c, --cwd-dest <dest>', "Designates where CWD is mounted within container", '/mnt/host')
+    .option('-h, --host-src <hostSrc>', 'Designates which host src to mount into the container', process.cwd())
+    .option('-c, --container-dest <containerDest>', "Designates where host src is mounted within container", '/mnt/host')
     .option('-s, --ssh', "Mount SSH files", false)
     .option('-d, --docker', 'Mount Docker daemon', false)
     .action(shell);
@@ -21,14 +23,13 @@ register('shell [image] [cmd]', (program: Command) => {
 
 export async function shell(image = 'vlegm/dev-alpine:latest', cmd = '/bin/zsh', options:ShellOptions = {}) {
   const sshDir = normalize(`${homedir()}/.ssh`);
-  const cwd = process.cwd();
   log2('cmd', cmd);
   log2('image', image);
 
   const args = [
     '-it',
     '--rm',
-    '-v', `${cwd}:${options.cwdDest}`
+    '-v', `${options.hostSrc}:${options.containerDest}`
   ];
 
   if(options.docker === true) {
@@ -49,6 +50,7 @@ export async function shell(image = 'vlegm/dev-alpine:latest', cmd = '/bin/zsh',
   await run('docker', [
     'run',
     ...args,
-    image, cmd
+    image,
+    ...cmd.split(' ')
   ]);
 }
