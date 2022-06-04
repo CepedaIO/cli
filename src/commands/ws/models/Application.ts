@@ -1,8 +1,8 @@
 import { JSAML } from "@vlegm/utils"
-import {existsSync, mkdirSync} from "fs";
+import {existsSync} from "fs";
 
 import { dataDir } from "../../../config/app";
-import { Project } from "./Project";
+import { iProject, Project } from "./Project";
 
 export interface Application {
   defaults: {
@@ -40,7 +40,7 @@ export const Application = {
     return app.defaults;
   },
 
-  async defaultProject(): Promise<Project | null> {
+  async defaultProject(): Promise<iProject | null> {
     const defaults = await Application.defaults();
     return defaults.project ? Project.get(defaults.project) : null; 
   }

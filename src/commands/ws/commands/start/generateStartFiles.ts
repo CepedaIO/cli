@@ -1,6 +1,6 @@
 import { normalize } from "path";
 import { promises, existsSync } from "fs";
-import { Project } from "../../models/Project";
+import { iProject, Project } from "../../models/Project";
 import { createHash } from "crypto";
 import { JSAML, run } from "@vlegm/utils";
 import chalk from "chalk";
@@ -10,18 +10,18 @@ import {StartOptions} from "./index";
 
 const { readFile } = promises;
 
-function composeProviderTSURL(project: Project) {
+function composeProviderTSURL(project: iProject) {
   return normalize(`${project.root}/compose-provider.ts`);
 }
 
-function needsRebuild(hash: string, project: Project) {
+function needsRebuild(hash: string, project: iProject) {
   return !project.hash ||
     project.hash !== hash ||
     !existsSync(`${project.root}/dist`) ||
     !existsSync(`${project.root}/docker-compose.yaml`);
 }
 
-export async function startProject(project: Project, environment = 'master', options: StartOptions = {}) {
+export async function generateStartFiles(project: iProject, environment = 'master', options: StartOptions = {}) {
   const file = await readFile(composeProviderTSURL(project));
   const hashSum = createHash('sha256');
 
@@ -49,9 +49,4 @@ export async function startProject(project: Project, environment = 'master', opt
     });
     await JSAML.save(dockerCompose, `${project.root}/docker-compose.yaml`);
   }
-
-  console.log(`Starting ${chalk.yellow('services')}!`);
-  await run('docker-compose', ['up', '--remove-orphans'], {
-    cwd: project.root
-  });
 }

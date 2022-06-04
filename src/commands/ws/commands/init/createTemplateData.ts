@@ -1,4 +1,4 @@
-import {ComposeProvider, Dict, DockerService, WorkstationAnswers, ServiceFromRepo } from "../../../../types";
+import {ComposeProvider, Dict, DockerService, WorkstationAnswers, isRepoReference } from "../../../../types";
 import dockerServices from "../../dockerServices"
 
 function getName(gitUrl: string): string | undefined {
@@ -30,7 +30,7 @@ function servicesFromRepos(config: WorkstationAnswers) {
     };
 
     return res;
-  }, {} as Dict<DockerService | (DockerService & ServiceFromRepo)>)
+  }, {} as Dict<DockerService | (DockerService & isRepoReference)>)
 }
 
 function predefinedServices(config: WorkstationAnswers): ComposeProvider {

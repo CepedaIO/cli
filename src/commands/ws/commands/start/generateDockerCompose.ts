@@ -5,12 +5,12 @@ import {
   isServiceProvider,
   DockerCompose, Dict, DockerService
 } from "../../../../types";
-import {Project} from "../../models/Project";
+import {iProject} from "../../models/Project";
 import {processServiceProvider} from "./processServiceProvider";
 
-async function processServices(project:Project, env:string, providers: ComposeProvider['services'], commandOptions:CommandOptions): Promise<Dict<DockerService>> {
+async function processServices(project:iProject, env:string, providers: ComposeProvider['services'], commandOptions:CommandOptions): Promise<Dict<DockerService>> {
   let services = {};
-  for (const [serviceName, provider] of Object.entries(providers)) {
+  for (const [serviceName, provider] of Object.entries(providers || {})) {
     if(isServiceProvider(provider)) {
       const context:ProviderContext = {
         name: serviceName,
@@ -25,7 +25,7 @@ async function processServices(project:Project, env:string, providers: ComposePr
   return services;
 }
 
-export async function generateDockerCompose(project:Project, config:ComposeProvider, env:string, options:CommandOptions): Promise<DockerCompose> {
+export async function generateDockerCompose(project:iProject, config:ComposeProvider, env:string, options:CommandOptions): Promise<DockerCompose> {
   const services = await processServices(project, env, config.services, options);
 
   return {

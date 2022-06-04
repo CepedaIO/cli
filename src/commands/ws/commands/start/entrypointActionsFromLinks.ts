@@ -1,8 +1,12 @@
-import {Project} from "../../models/Project";
+import {iProject} from "../../models/Project";
 import {DockerService, ServiceProvider} from "../../../../types";
 import {tuple} from "./tuple";
 
-export async function entrypointActionsFromLinks(project:Project, provider: ServiceProvider, service: DockerService): Promise<string[]> {
+export async function entrypointActionsFromLinks(project:iProject, provider: ServiceProvider, service: DockerService): Promise<string[]> {
+  if(!provider.links) {
+    return [];
+  }
+
   const npmLinks = provider.links.filter((link) => {
     const [,linkName] = tuple(link);
     return !!linkName;

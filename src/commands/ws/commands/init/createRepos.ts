@@ -1,28 +1,25 @@
 import { run } from '@vlegm/utils';
-import { ComposeProvider, isServiceFromRepo } from "../../../../types";
-import {Project} from "../../models/Project";
+import { ComposeProvider, isRepoReference } from "../../../../types";
+import {iProject, getServiceRoot} from "../../models/Project";
 import {existsSync} from "fs";
-import {normalize} from "path";
 import chalk from "chalk";
 import {mkdir} from "fs/promises";
 
-export async function createRepos(project:Project, config: ComposeProvider): Promise<any> {
-  const allServicesRoot = normalize(`${project.root}/services`);
-
-  if(!existsSync(allServicesRoot)) {
-    await mkdir(allServicesRoot);
+export async function createRepos(project:iProject, config: ComposeProvider): Promise<any> {
+  if(!existsSync(project.servicesRoot)) {
+    await mkdir(project.servicesRoot);
   }
 
-  return Object.entries(config.services)
+  return Object.entries(config.services || {})
     .reduce((tail, [serviceName, service]) => {
-      if(isServiceFromRepo(service)) {
-        const serviceRoot = normalize(`${allServicesRoot}/${serviceName}`);
+      if(isRepoReference(service)) {
+        const serviceRoot = getServiceRoot(project, serviceName);
 
         if(!existsSync(serviceRoot)) {
           console.log(`Cloning repo for: ${chalk.greenBright(serviceName)}`);
 
           return tail
-            .then(() => run('git', ['clone', service.repo.url, serviceName], { cwd: allServicesRoot }))
+            .then(() => run('git', ['clone', service.repo.url, serviceName], { cwd: project.servicesRoot }))
             .then(() => {
               if(service.repo.init) {
                 const command = service.repo.init.split(' ');

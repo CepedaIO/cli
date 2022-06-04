@@ -1,13 +1,15 @@
 import {dataDir} from "../../../config/app";
 import { promises, existsSync } from "fs";
+import {normalize} from "path";
 import {JSAML} from "@vlegm/utils";
 import {getRoot} from "../services/getRoot";
 
 const { readdir, mkdir, rm } = promises;
 
-export interface Project {
+export interface iProject {
   name: string;
   root: string;
+  servicesRoot: string;
   hash?: string;
   workstation?: string;
 }
@@ -19,18 +21,25 @@ function projectURL(name:string) {
   return `${dataURL(name)}/project.json`;
 }
 
+export function getServiceRoot(project:iProject, serviceName: string) {
+  return `${project.servicesRoot}/${serviceName}`;
+}
+
 export const Project = {
-  async init(name: string, root?: string) {
+  async init(name: string, _root?: string) {
+    const root = normalize(_root ? _root : getRoot(name));
+    const servicesRoot = normalize(`${root}/services`);
     const project = {
       name,
-      root: root ? root : getRoot(name)
+      root,
+      servicesRoot
     }
 
     await Project.save(project);
     return project;
   },
 
-  async save(project: Project) {
+  async save(project: iProject) {
     if(!existsSync(dataURL(project.name))) {
       await mkdir(dataURL(project.name));
     }
@@ -38,8 +47,8 @@ export const Project = {
     return JSAML.save(project, projectURL(project.name))
   },
 
-  async get(name: string): Promise<Project> {
-    return JSAML.read(projectURL(name)) as Promise<Project>
+  async get(name: string) {
+    return JSAML.read(projectURL(name)) as Promise<iProject>
   },
 
   has(name: string) {

@@ -26,6 +26,10 @@ export async function exec(projectName?: string, service?: string, command?:stri
     command = "bash";
   }
 
+  if(!service) {
+    throw new Error('Was unable to resolve service');
+  }
+
   console.log(`Attaching to: ${chalk.blueBright(project.name)}!`);
   await run('docker-compose', ['exec', service, command], {
     cwd: project.root

@@ -12,7 +12,7 @@ export interface RepoInfo {
   init?: string;
 }
 
-export function isServiceFromRepo(obj:any): obj is ServiceFromRepo {
+export function isRepoReference(obj:any): obj is isRepoReference {
   return typeof obj.repo === "object";
 }
 
@@ -51,8 +51,8 @@ export interface ServiceProviderOptionals {
   links?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
 }
 
-export type ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'dockerfile'>
-export type ServiceFromRepo = RequireBy<ServiceProvider, 'repo'>;
+export type ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'dockerfile' | 'volumes'>
+export type isRepoReference = RequireBy<ServiceProvider, 'repo'>;
 
 export interface CommandOptions {
   test: boolean;

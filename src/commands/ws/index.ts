@@ -16,6 +16,7 @@ register('ws', (program: Command) => {
   program.command('start [project] [environment]')
     .description('Start docker services')
     .option('-b, --build', "Force project to build itself")
+    .option('-g, --generate', "Only generate startup files, do not start")
     .action(start);
 
   program.command('exec [project] <service> [command]')
