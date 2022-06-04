@@ -8,9 +8,10 @@ import {getProject} from "../../prompts/getProject";
 export async function start(serviceName?:string, projectName?: string, options?: StartOptions) {
   console.log('before');
   const project = await getProject(projectName, serviceName);
-  const environment = "local";
 
-  await generateStartFiles(project, environment, options!);
+  options!.env = 'local';
+
+  await generateStartFiles(project, options!);
 
   if(serviceExists(serviceName, project)) {
     /**

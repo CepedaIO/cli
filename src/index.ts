@@ -12,3 +12,4 @@ init().then(() => {
 });
 
 export * from "./types";
+export * from "./commands/ws/docker-services";

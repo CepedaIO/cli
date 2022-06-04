@@ -7,6 +7,6 @@ export async function projects() {
   if(!projects.length) {
     console.log(`There are ${chalk.redBright('no')} projects currently registered`);
   } else {
-    console.log(`Projects: ${chalk.blueBright(projects.join(' '))}`)
+    console.log(projects.join('\n'))
   }
 }

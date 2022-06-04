@@ -1,5 +1,4 @@
 import { DockerService, DockerVolume } from "./docker-compose";
-import dockerServices from "./commands/ws/dockerServices";
 
 export * from "./docker-compose";
 
@@ -16,8 +15,10 @@ export interface RepoInfo {
 }
 
 export interface StartOptions {
+  env: string;
   build: boolean;
   generate: boolean;
+  hasEnvFile: boolean;
 }
 
 export function isRepoReference(obj:any): obj is isRepoReference {
@@ -25,7 +26,11 @@ export function isRepoReference(obj:any): obj is isRepoReference {
 }
 
 export function isServiceProvider(obj:any): obj is ServiceProvider {
-  return obj.image || obj.dockerfile;
+  return obj.image || obj.build;
+}
+
+export function isServiceInstance(obj:any): obj is ServiceInstance {
+  return obj.env && obj.service;
 }
 
 export interface WorkstationAnswers {
@@ -42,28 +47,31 @@ export type MapAsProvider<T, K extends keyof T> = Omit<T, K> & {
 } & ServiceProviderOptionals;
 
 export interface ServiceProviderOptionals {
+  env?: Dict<string | number>;
   repo?: RepoInfo
   mnts?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
 }
 
-export type ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'build' | 'volumes'>
+type _ServiceProvider = MapAsProvider<DockerService, 'command' | 'image' | 'build' | 'volumes'>;
+export type ServiceProvider = Omit<_ServiceProvider, 'env_file'>;
 export type isRepoReference = RequireBy<ServiceProvider, 'repo'>;
-
-export interface CommandOptions {
-  test: boolean;
-}
 
 export interface ProviderContext {
   name: string;
-  env: string;
   options: StartOptions;
   command?: string | string[];
 }
 
 export interface ComposeProvider {
   version: string;
-  env?: Dict<string | number>,
-  predefined?: string[],
-  services?: Dict<ServiceProvider>;
+  env?: Dict<string | number>;
+  predefined?: string[];
+  services?: Dict<ServiceProvider | ServiceInstance>;
   volumes?: Dict<DockerVolume>;
+}
+
+export interface ServiceInstance {
+  env?(context: ProviderContext): Dict<string | number>;
+  service(context: ProviderContext): DockerService;
+  volumes?(context:ProviderContext): Dict<DockerVolume>;
 }

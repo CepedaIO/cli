@@ -2,12 +2,13 @@ import { normalize } from "path";
 import { promises, existsSync } from "fs";
 import { iProject, Project } from "../../models/Project";
 import { createHash } from "crypto";
-import { JSAML, run } from "@vlegm/utils";
+import { run } from "@vlegm/utils";
 import chalk from "chalk";
 import { generateDockerCompose } from "./generateDockerCompose"
 import {ComposeProvider, StartOptions} from "../../../../types";
-import {writeFile} from "fs/promises";
 import {providerFromProject} from "../../services/providerFromProject";
+import {generateEnv} from "./generateEnvFile";
+import {generateEntrypoint} from "./generateEntrypoints";
 
 const { readFile } = promises;
 
@@ -22,14 +23,12 @@ function needsRebuild(hash: string, project: iProject) {
     !existsSync(`${project.root}/docker-compose.yaml`);
 }
 
-export async function generateStartFiles(project: iProject, environment = 'master', options: StartOptions) {
+export async function generateStartFiles(project: iProject, options: StartOptions) {
   const file = await readFile(composeProviderTSURL(project));
   const hashSum = createHash('sha256');
 
   hashSum.update(file);
   const hash = hashSum.digest('hex');
-  const isTest = environment === 'test';
-  const branch = isTest ? 'master' : environment;
   console.log(`Hash: ${chalk.blueBright(hash)}`);
 
   if(needsRebuild(hash, project) || options.build) {
@@ -42,23 +41,9 @@ export async function generateStartFiles(project: iProject, environment = 'maste
     project.hash = hash;
     await Project.save(project);
 
-    console.log(`Configuring for: ${chalk.greenBright(branch)}`);
     const provider:ComposeProvider = providerFromProject(project);
-    const dockerCompose = await generateDockerCompose(project, provider, 'local', options);
-
-    if(provider.env) {
-      console.log('Creating .env file');
-      const envPath = `./dist/.env`;
-
-      await writeFile(envPath,
-        Object.entries(provider.env)
-          .reduce((res, [flag, value]) => res.concat(`${flag}=${value}`), [] as string[])
-          .join('\n')
-      , 'utf-8');
-
-      Object.values(dockerCompose.services || {}).forEach((value) => value.env_file = envPath);
-    }
-
-    await JSAML.save(dockerCompose, `${project.root}/docker-compose.yaml`);
+    options.hasEnvFile = await generateEnv(provider, options);
+    await generateDockerCompose(project, provider, options);
+    await generateEntrypoint(project, provider, options);
   }
 }
