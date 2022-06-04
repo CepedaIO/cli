@@ -29,6 +29,10 @@ export function isRepoReference(obj:any): obj is isRepoReference {
   return typeof obj.repo === "object";
 }
 
+export function isRepoInfo(obj:any): obj is RepoInfo {
+  return typeof obj.url === 'string';
+}
+
 export function isServiceProvider(obj:any): obj is ServiceProvider {
   return obj.image || obj.build;
 }

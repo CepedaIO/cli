@@ -37,12 +37,15 @@ export async function generateStartFiles(project: iProject, options: StartOption
 
   if(needsRebuild(project, hash) || options.build) {
     console.log('Compose changed, building environment');
-    await rm(distDir(project.root), { recursive: true });
+
+    if(existsSync(distDir(project.root))) {
+      await rm(distDir(project.root), { recursive: true });
+    }
+
     await run('yarn', ['build'], {
       cwd: project.root,
       shell: true
     });
-
     project.hash = hash;
     await Project.save(project);
 

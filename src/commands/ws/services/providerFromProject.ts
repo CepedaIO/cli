@@ -1,6 +1,12 @@
 import {iProject} from "../models/Project";
-import {isServiceInstance, isServiceProvider, NormalizedComposeProvider} from "../../../types";
+import {
+  isRepoInfo,
+  isServiceInstance,
+  isServiceProvider,
+  NormalizedComposeProvider
+} from "../../../types";
 import {Service} from "../docker-services";
+import {composer} from "./composer";
 
 export function providerFromProject(project: iProject): NormalizedComposeProvider {
   const allExports = require(`${project.root}/.dist/compose-provider.js`);
@@ -8,25 +14,31 @@ export function providerFromProject(project: iProject): NormalizedComposeProvide
     version: '3.7'
   };
 
-  if(!defaultExport.services) {
-    defaultExport.services = {};
-  }
-
-  for(const [serviceName, serviceDef] of Object.entries(allExports)) {
-    if(serviceName !== 'default') {
+  const services = {};
+  const processServiceDefinitions = (obj:Object) => {
+    for(const [serviceName, serviceDef] of Object.entries(obj)) {
       if(isServiceInstance(serviceDef) || isServiceProvider(serviceDef)) {
-        defaultExport.services[serviceName] = serviceDef;
+        services[serviceName] = serviceDef;
+      } else if(isRepoInfo(serviceDef)) {
+        composer.addSource(serviceName, serviceDef);
       }
     }
   }
 
-  for(const [serviceName, serviceDef] of Object.entries(defaultExport.services)) {
-    if(isServiceProvider(serviceDef)) {
-      defaultExport.services[serviceName] = new Service(serviceDef);;
-    }
-
-    defaultExport.services[serviceName].name = serviceName;
+  if(defaultExport.services) {
+    processServiceDefinitions(defaultExport.services);
   }
 
+  processServiceDefinitions(allExports);
+
+  for(const [serviceName, serviceDef] of Object.entries(services)) {
+    if(isServiceProvider(serviceDef)) {
+      services[serviceName] = new Service(serviceDef);;
+    }
+
+    services[serviceName].name = serviceName;
+  }
+
+  defaultExport.services = services;
   return defaultExport;
 }

@@ -18,6 +18,6 @@ export async function include(serviceName?: string, projectName?: string) {
   if(included.length === 0) {
     console.log(`${chalk.redBright('Nothing')} included!`);
   } else {
-    console.log(`Included:\n\t${chalk.greenBright(included.join('\n\t'))}`)
+    console.log(`${included.join('\n')}`)
   }
 }

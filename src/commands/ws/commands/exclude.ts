@@ -18,6 +18,6 @@ export async function exclude(serviceName?: string, projectName?: string) {
   if(project.services.excluded.length === 0) {
     console.log(`${chalk.redBright('Nothing')} excluded!`);
   } else {
-    console.log(`Excluded:\n\t${chalk.greenBright(project.services.excluded.join('\n\t'))}`);
+    console.log(`${project.services.excluded.join('\n')}`);
   }
 }

@@ -9,7 +9,7 @@ export async function defaultProject(project?:string) {
     if(!defaultProject) {
       console.log(`There is ${chalk.redBright('no')} default project set`);
     } else {
-      console.log(`Default project: ${chalk.blueBright(defaultProject.name)}`);
+      console.log(defaultProject.name);
     }
   } else {
     if(!Project.has(project)) {
