@@ -8,22 +8,32 @@ import { start } from "./commands/start";
 import { stop } from "./commands/stop";
 import {unpack} from "./commands/unpack";
 import { exec } from "./commands/exec";
+import {tail} from "./commands/tail";
+import {restart} from "./commands/restart";
 
 
 register('ws', (program: Command) => {
   program.description('Workstation tool helps you set up docker environments')
 
-  program.command('start [project] [environment]')
-    .description('Start docker services')
+  program.command('start [service] [project]')
+    .description('Start docker service(s)')
     .option('-b, --build', "Force project to build itself")
     .option('-g, --generate', "Only generate startup files, do not start")
     .action(start);
+
+  program.command('restart [service] [project]')
+    .description('Restart service')
+    .action(restart);
 
   program.command('exec <service> <command> [project]')
     .description('Exec command in service\'s container')
     .action(exec);
 
-  program.command('stop [project]')
+  program.command('tail <service> [project]')
+    .description('Tail logs for service')
+    .action(tail);
+
+  program.command('stop [service] [project]')
     .description('Stop docker services')
     .action(stop);
 

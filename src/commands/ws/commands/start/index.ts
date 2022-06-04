@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import {run} from "@vlegm/utils";
-import {iProject, Project} from "../../models/Project";
 import { generateStartFiles } from './generateStartFiles';
 import {getProject} from "../../services/getProject";
 
@@ -9,24 +8,25 @@ export interface StartOptions {
   generate?: boolean;
 }
 
-export async function start(projectName?:string, environment?: string, options?: StartOptions) {
-  const project:iProject | undefined = await getProject(projectName);
+export async function start(service?:string, projectName?: string, options?: StartOptions) {
+  const project = await getProject(projectName, service);
+  const environment = "local";
 
-  if(!project) {
-    throw new Error('No default project found, could not start');
-  }
+  if(!service || project.name === service) {
+    /**
+     * No service provided, start whole project
+     */
+    await generateStartFiles(project, environment, options);
 
-  if(!environment && (!projectName || !Project.has(projectName))) {
-    /** if we have a valid project but an invalid project name, assume it's the environment tag **/
-    environment = projectName;
-  }
-
-  await generateStartFiles(project, environment, options);
-
-  if(!options || options.generate !== true) {
-    console.log(`Starting project: ${chalk.blueBright(project.name)}`);
-    await run('docker-compose', ['up', '--remove-orphans'], {
-      cwd: project.root
-    });
+    if(!options || options.generate !== true) {
+      console.log(`Starting project!`);
+      await run('docker-compose', ['up', '-d'], project.root);
+    }
+  } else if(service) {
+    /**
+     * service provided, restart for service
+     */
+    console.log(`Starting service: ${chalk.yellow(service)}`);
+    await run('docker-compose', ['up', '-d', service], project.root);
   }
 }
