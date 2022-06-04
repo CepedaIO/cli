@@ -9,7 +9,7 @@ import {NormalizedComposeProvider, StartOptions} from "../../../../types";
 import {providerFromProject} from "../../services/providerFromProject";
 import {generateEnv} from "./generateEnvFile";
 import {generateEntrypoint} from "./generateEntrypoints";
-import {rmdir} from "fs/promises";
+import {rm} from "fs/promises";
 import {distDir} from "../../../../config/app";
 import {composer} from "../../services/composer";
 import {addSources} from "../../services/addSources";
@@ -37,7 +37,7 @@ export async function generateStartFiles(project: iProject, options: StartOption
 
   if(needsRebuild(project, hash) || options.build) {
     console.log('Compose changed, building environment');
-    await rmdir(distDir(project.root), { recursive: true });
+    await rm(distDir(project.root), { recursive: true });
     await run('yarn', ['build'], {
       cwd: project.root,
       shell: true

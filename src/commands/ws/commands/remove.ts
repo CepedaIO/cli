@@ -29,6 +29,6 @@ export async function remove(projectName: string) {
 
   const deleteRoot = await confirm('Would you also like to delete the project\'s directory?');
   if(deleteRoot) {
-    await rm(project.root, { recursive: true })
+    await rm(project.root, { recursive: true, force: true  })
   }
 }
