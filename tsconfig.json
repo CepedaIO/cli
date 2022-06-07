@@ -17,7 +17,8 @@
     "node_modules",
     "tmp",
     "e2e",
-    "src/commands/ws/configs"
+    "src/commands/ws/configs",
+    "package.json"
   ],
   "include": [
     "src"

@@ -1,15 +1,22 @@
 import {iProject} from "../models/Project";
 import {
+  Dict, iServiceResolver,
   isRepoInfo,
-  isServiceInstance,
+  isServiceFactory,
   isServiceProvider,
-  NormalizedComposeProvider
+  NormalizedComposeProvider, ServiceProvider
 } from "../../../types";
-import {NodeJSSource, ServiceFactory} from "../docker-services";
 import {composer} from "./composer";
+import {isProviderFactory, ProviderFactory} from "../models/ProviderFactory";
+import merge from "lodash.merge";
+import {ServiceResolver} from "../models/ServiceResolver";
 
 export function providerFromProject(project: iProject): NormalizedComposeProvider {
   return providerFromPath(`${project.root}/.dist/compose-provider.js`);
+}
+
+function serviceProviderFromFactory(factory: ProviderFactory): ServiceProvider {
+  return merge(factory.base, factory.provider);
 }
 
 export function providerFromPath(path:string): any {
@@ -18,16 +25,17 @@ export function providerFromPath(path:string): any {
     version: '3.7'
   };
 
-  const services = {};
+  const services:Dict<iServiceResolver> = {};
+
   const processServiceDefinitions = (obj:Object) => {
     for(const [serviceName, serviceDef] of Object.entries(obj)) {
-      console.log(serviceName, serviceDef);
-      if(isServiceInstance(serviceDef) || isServiceProvider(serviceDef)) {
+      if(isProviderFactory(serviceDef)) {
+        const provider = serviceProviderFromFactory(serviceDef);
+        services[serviceName] = new ServiceResolver(provider, serviceDef.defaults);
+      } else if(isServiceProvider(serviceDef)) {
+        services[serviceName] = new ServiceResolver(serviceDef);
+      } else if(isServiceFactory(serviceDef)) {
         services[serviceName] = serviceDef;
-
-        if(isServiceProvider(serviceDef) && serviceDef.repo) {
-          composer.addSource(serviceName, serviceDef.repo);
-        }
       } else if(isRepoInfo(serviceDef)) {
         composer.addSource(serviceName, serviceDef);
       }
@@ -37,15 +45,18 @@ export function providerFromPath(path:string): any {
   if(defaultExport.services) {
     processServiceDefinitions(defaultExport.services);
   }
-
   processServiceDefinitions(allExports);
-  for(const [serviceName, serviceDef] of Object.entries(services)) {
-    if(isServiceProvider(serviceDef)) {
-      services[serviceName] = new ServiceFactory(serviceDef);
-    }
 
-    services[serviceName].name = serviceName;
+  for(const [serviceName, serviceDef] of Object.entries(services)) {
+    if(serviceDef) {
+      serviceDef.name = serviceName;
+
+      if(serviceDef.source) {
+        composer.addSource(serviceName, serviceDef.source);
+      }
+    }
   }
+
   defaultExport.services = services;
   return defaultExport;
 }

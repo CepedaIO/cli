@@ -1,6 +1,6 @@
 import {StandardTester} from "../../../StandardTester";
 
-describe.only('ws - Empty Project', () => {
+describe('ws - Empty Project', () => {
   let standardTester:StandardTester = new StandardTester('empty-project', __dirname, {
   });
 

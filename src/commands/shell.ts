@@ -16,9 +16,8 @@ interface ShellOptions {
 
 register('shell [image] [cmd...]', (program: Command) => {
   return program.description('Attempt to shell into an image with an auto-removing container')
-    .option('-h, --host', 'Mounts the current work directory into the container destination', false)
     .option('-c, --containerDest <containerDest>', 'Change the container destination for host mount', '/mnt/host')
-    .option('-i, --include <include>', 'Mounts comma delimited list of directories, relative to the host source path', '')
+    .option('-i, --include <include>', 'Mounts comma delimited list of directories, relative to (and instead of) CWD', '')
     .option('-s, --ssh', "Mount SSH files", false)
     .option('-d, --docker', 'Mount Docker daemon', false)
     .option('-a, --args', 'Pass through args direction to docker\s run command', '')
@@ -50,12 +49,6 @@ export async function shell(image = 'dev', cmdArr:string[] = [], options:ShellOp
     '-w', options.containerDest
   ];
 
-  if(options.host) {
-    args.push.apply(args, [
-      '-v', `${process.cwd()}:${options.containerDest}`
-    ])
-  }
-
   if(options.include) {
     const relativeMounts = options.include.split(',')
       .reduce((prev, relativeDir) => {
@@ -64,6 +57,10 @@ export async function shell(image = 'dev', cmdArr:string[] = [], options:ShellOp
       }, [] as string[])
 
     args.push.apply(args, relativeMounts);
+  } else {
+    args.push.apply(args, [
+      '-v', `${process.cwd()}:${options.containerDest}`
+    ])
   }
 
   if(options.docker) {

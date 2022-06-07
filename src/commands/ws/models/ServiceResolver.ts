@@ -3,13 +3,11 @@ import {
   DockerService,
   FieldProvider,
   ProviderContext, RepoInfo,
-  iServiceFactory,
-  ServiceProvider, iEntrypointFactory,
+  ServiceProvider, iEntrypointFactory, iServiceResolver, ServiceProviderDefaults,
 } from "../../../types";
 import {isFunction} from "@cepedaio/utils";
-import {composer} from "../services/composer";
 import {basename, isAbsolute} from "path";
-import {iProject} from "../models/Project";
+import {iProject} from "./Project";
 import {existsSync} from "fs";
 import {readFile} from "fs/promises";
 
@@ -21,11 +19,17 @@ export function resolveField<T>(fieldProvider:FieldProvider<T>, context:Provider
   return fieldProvider;
 }
 
-function getVolumes(serviceInst: ServiceFactory, context: ProviderContext) {
+function getVolumes(serviceInst: ServiceResolver, context: ProviderContext) {
   const volumes = resolveField(serviceInst.provider.volumes, context) || [];
 
   if(serviceInst.source) {
-    volumes.push(`./services/${serviceInst.name}:/mnt/host`)
+    if(serviceInst.provider.include && serviceInst.provider.include.length > 0) {
+      serviceInst.provider.include.forEach((dir) =>
+        volumes.push(`./services/${serviceInst.name}/${dir}:/mnt/host/${dir}`)
+      )
+    } else {
+      volumes.push(`./services/${serviceInst.name}:/mnt/host`)
+    }
   }
 
   const linkVolumes = serviceInst.npmLinks().map((serviceName) => {
@@ -48,20 +52,13 @@ function getVolumes(serviceInst: ServiceFactory, context: ProviderContext) {
   return volumes;
 }
 
-export class ServiceFactory implements iServiceFactory, iEntrypointFactory {
+export class ServiceResolver implements iServiceResolver, iEntrypointFactory {
   public name!: string;
 
   constructor(
-    public provider: ServiceProvider
+    public provider: ServiceProvider,
+    public defaults: ServiceProviderDefaults = {}
   ) {}
-
-  linkWithNPM(serviceName: string) {
-    if(!this.provider.npmLinks) {
-      this.provider.npmLinks = [];
-    }
-
-    this.provider.npmLinks.push(serviceName);
-  }
 
   get source(): RepoInfo | undefined {
     return this.provider.repo;
@@ -105,10 +102,6 @@ export class ServiceFactory implements iServiceFactory, iEntrypointFactory {
 
   needsEntrypoint(context:ProviderContext): boolean {
     return this.hasNPMLinks() || Array.isArray(this.command(context));
-  }
-
-  addSource(url, init?) {
-    this.provider.repo = { url, init };
   }
 
   async getLinkInfo(project: iProject) {

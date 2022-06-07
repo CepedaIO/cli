@@ -1,6 +1,5 @@
 //@ts-ignore
 import {NodeJSService} from "@vlegm/cli";
-import {normalize} from "path";
 
-export const server = new NodeJSService(3000);
-server.addSource(normalize(`${__dirname}/../../../tests/e2e/repos/server`));
+export const server = NodeJSService(3000)
+	.setSource(`git@github.com:vlegm/cli-server.git`);

@@ -76,6 +76,10 @@ export const Project = {
   },
 
   async remove(name: string) {
-    return rm(dataURL(name), { recursive: true });
+    return rm(dataURL(name), {recursive: true});
+  },
+
+  pathFor(project:iProject, serviceName: string) {
+    return normalize(`${project.services.root}/${serviceName}`);
   }
 }

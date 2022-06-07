@@ -1,7 +1,7 @@
 import {
   Dict,
   DockerVolume,
-  isServiceInstance,
+  isServiceFactory,
   NormalizedComposeProvider,
   ProviderContext,
   StartOptions
@@ -11,7 +11,7 @@ export async function processVolumes(provider: NormalizedComposeProvider, option
   let volumes: Dict<{}> = {};
 
   for (const [serviceName, serviceDef] of Object.entries(provider.services || {})) {
-    if(isServiceInstance(serviceDef) && serviceDef.volumes) {
+    if(isServiceFactory(serviceDef) && serviceDef.volumes) {
       const context:ProviderContext = {
         name: serviceName,
         options

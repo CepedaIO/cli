@@ -1,5 +1,11 @@
-export * from "./types";
 export * from "./commands/ws/docker-services";
 export * from "./commands/shell";
+export * from "./commands/ws/models/RepoSource";
 
-export { composer } from "./commands/ws/services/composer";
+export {
+	ComposeProvider,
+	ServiceProvider,
+	ProviderContext,
+	RepoInfo,
+	ShellCommand,
+} from "./types";

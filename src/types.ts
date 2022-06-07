@@ -7,12 +7,13 @@ export interface Dict<T> {
   [key: string]: T | undefined;
 }
 
+export type ShellCommand = string | string[];
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type RequireBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 export interface RepoInfo {
   url: string;
-  init?: string | string[];
+  init?: ShellCommand;
 }
 
 export interface PortBind {
@@ -38,7 +39,7 @@ export function isServiceProvider(obj:any): obj is ServiceProvider {
   return obj.image || obj.build;
 }
 
-export function isServiceInstance(obj:any): obj is iServiceFactory {
+export function isServiceFactory(obj:any): obj is iServiceResolver {
   return obj.env && obj.service;
 }
 
@@ -61,8 +62,9 @@ export type MapAsProvider<T, K extends keyof T> = Omit<T, K> & {
 
 export interface ServiceProviderOptionals {
   env?: Dict<string | number>;
-  repo?: RepoInfo;
+  repo?: RepoInfo; /* Will clone repo into services folder and then mnt into container at /mnt/host */
   npmLinks?: string[]; /* WARNING: This will override the entrypoint in order to issue linking commands */
+  include?: string[]; /* Will mount directories relative to (and instead of) CWD */
 }
 
 export type ServiceProviderKeys = 'command' | 'image' | 'build' | 'volumes'
@@ -79,16 +81,24 @@ export interface ComposeProvider {
   version: string;
   env?: Dict<string | number>;
   predefined?: string[];
-  services?: Dict<ServiceProvider | iServiceFactory>;
+  services?: Dict<ServiceProvider | iServiceResolver>;
   volumes?: Dict<DockerVolume>;
 }
 
 export interface NormalizedComposeProvider extends ComposeProvider {
-  services: Dict<iServiceFactory>;
+  services: Dict<iServiceResolver>;
 }
 
-export interface iServiceFactory {
+export interface ServiceProviderDefaults {
+  runtime?(context:ProviderContext): Pick<DockerService, 'image' | 'build' | 'command'>;
+  repo?: { init: ShellCommand };
+}
+
+export interface iServiceResolver {
+  name?: string;
   source?: RepoInfo;
+  defaultRuntime?:(context:ProviderContext) => Pick<DockerService, 'image' | 'build' | 'command'>;
+  defaults?: ServiceProviderDefaults;
   env?(context: ProviderContext): Dict<string | number>;
   service(context: ProviderContext): DockerService;
   volumes?(context:ProviderContext): Dict<DockerVolume>;
