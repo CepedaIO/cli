@@ -2,7 +2,7 @@ import {promises} from "fs";
 import {join} from "path";
 import {rootDir} from "../../../../configs/app";
 import {createComposeProvider} from "./createComposeProvider";
-import {run} from "@vlegm/utils";
+import {run} from "@cepedaio/utils";
 import {WorkstationAnswers} from "../../../../types";
 import packageJSON from "../unpack/package.json";
 import tsconfigJSON from "../unpack/tsconfig.json";

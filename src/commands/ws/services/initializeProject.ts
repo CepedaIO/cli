@@ -5,7 +5,7 @@ import {iProject, Project} from "../models/Project";
 import {existsSync} from "fs";
 import {mkdir} from "fs/promises";
 import chalk from "chalk";
-import {run} from "@vlegm/utils";
+import {run} from "@cepedaio/utils";
 import {log1} from "../../../utils/log";
 
 export async function initializeProject(project:iProject) {

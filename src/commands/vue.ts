@@ -5,7 +5,7 @@ import { resolve, normalize } from 'path';
 import { Extract } from 'unzipper';
 import mv from 'mv';
 import { readdir, rm } from "fs/promises";
-import {run} from "@vlegm/utils";
+import {run} from "@cepedaio/utils";
 import chalk from "chalk";
 
 register('vue [dir]', (program: Command) => {

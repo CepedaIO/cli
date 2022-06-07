@@ -1,4 +1,4 @@
-import {run} from "@vlegm/utils";
+import {run} from "@cepedaio/utils";
 import {serviceExists} from "../services/serviceExists";
 import {getProject} from "../prompts/getProject";
 

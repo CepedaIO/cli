@@ -9,7 +9,7 @@ import {assetsDir} from "../../../../configs/app";
 import {DockerCompose} from "../../../../docker-compose";
 import chalk from "chalk";
 import {processVolumes} from "./processVolumes";
-import {JSAML} from "@vlegm/utils";
+import {JSAML} from "@cepedaio/utils";
 import {iProject} from "../../models/Project";
 
 export async function createDockerCompose(project:iProject, config:NormalizedComposeProvider, options:StartOptions): Promise<DockerCompose> {

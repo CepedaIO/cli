@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import {run} from "@vlegm/utils";
+import {run} from "@cepedaio/utils";
 import { generateStartFiles } from './generateStartFiles';
 import {StartOptions} from "../../../../types";
 import {serviceExists} from "../../services/serviceExists";

@@ -6,7 +6,7 @@ import {
   iServiceFactory,
   ServiceProvider, iEntrypointFactory,
 } from "../../../types";
-import {isFunction} from "@vlegm/utils";
+import {isFunction} from "@cepedaio/utils";
 import {composer} from "../services/composer";
 import {basename, isAbsolute} from "path";
 import {iProject} from "../models/Project";

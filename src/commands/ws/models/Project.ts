@@ -1,7 +1,7 @@
 import {dataDir} from "../../../configs/app";
 import { promises, existsSync } from "fs";
 import {normalize} from "path";
-import {JSAML} from "@vlegm/utils";
+import {JSAML} from "@cepedaio/utils";
 import {getRoot} from "../services/getRoot";
 
 const { readdir, mkdir, rm } = promises;

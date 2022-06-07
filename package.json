@@ -1,13 +1,13 @@
 {
-  "name": "@vlegm/cli",
-  "version": "1.0.22",
+  "name": "@cepedaio/cli",
+  "version": "1.0.0",
   "description": "CLI tool for developers",
   "author": "Alfred Cepeda",
   "license": "ISC",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "vlm": "./dist/cli.js"
+    "cpa": "./dist/cli.js"
   },
   "scripts": {
     "dev": "ts-node --files src/cli.ts",
@@ -49,7 +49,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@vlegm/utils": "^1.0.2",
+    "@cepedaio/utils": "^1.0.0",
     "ajv": "^8.10.0",
     "ajv-formats": "^2.1.1",
     "chalk": "^4.1.2",

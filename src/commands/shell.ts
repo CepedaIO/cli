@@ -1,4 +1,4 @@
-import { run } from "@vlegm/utils";
+import { run } from "@cepedaio/utils";
 import { register } from "../utils/register";
 import { Command } from "commander";
 import { homedir } from 'os';

@@ -2,7 +2,7 @@ import { normalize } from "path";
 import { promises, existsSync } from "fs";
 import { iProject, Project } from "../../models/Project";
 import { createHash } from "crypto";
-import { run } from "@vlegm/utils";
+import { run } from "@cepedaio/utils";
 import chalk from "chalk";
 import { generateDockerCompose } from "./generateDockerCompose"
 import {StartOptions} from "../../../../types";

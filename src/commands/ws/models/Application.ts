@@ -1,4 +1,4 @@
-import { JSAML } from "@vlegm/utils"
+import { JSAML } from "@cepedaio/utils"
 import {existsSync} from "fs";
 
 import { dataDir } from "../../../configs/app";
