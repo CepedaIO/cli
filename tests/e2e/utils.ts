@@ -12,7 +12,7 @@ export async function setup(dir:string) {
 
 export async function cleanup(suiteName:string, suiteDir:string) {
   await rm(suiteDir, { recursive: true, force: true });
-  await rm(join(config.vlmDataDir, suiteName), { recursive: true, force: true });
+  await rm(join(config.cepDataDir, suiteName), { recursive: true, force: true });
 }
 
 export function expectExists(urls: string[], relative?: string) {

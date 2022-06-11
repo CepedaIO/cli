@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {existsSync} from "fs";
-import {MockCLIUser} from "@vlegm/utils";
+import {MockCLIUser} from "@cepedaio/utils";
 import {config} from "../../config";
 import {join} from "path";
 
@@ -10,13 +10,13 @@ const suiteDir = join(config.tmpDir, suiteName);
 describe('ws.init - Project with git repo ', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
-    const user = new MockCLIUser('vlm', ['ws', 'init', suiteName], {
+    const user = new MockCLIUser('cep', ['ws', 'init', suiteName], {
       cwd: config.tmpDir
     });
 
     await user.test([
       ['Add git repos?', 'y'],
-      ['Git repo', 'git@github.com:vlegm/cli.git'],
+      ['Git repo', 'git@github.com:cepedaio/cli.git'],
       ['Initialization command:', '\x0D'],
       ['Git repo', '\x0D'],
       ['Predefined Services:', '\x0D'],
@@ -38,7 +38,7 @@ describe('ws.init - Project with git repo ', () => {
 
   it('should remove project', async function() {
     this.timeout(0);
-    const user = new MockCLIUser('vlm', ['ws', 'remove', suiteName], {
+    const user = new MockCLIUser('cep', ['ws', 'remove', suiteName], {
       cwd: suiteDir
     });
 

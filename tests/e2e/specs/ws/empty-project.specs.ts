@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {MockCLIUser} from "@vlegm/utils";
+import {MockCLIUser} from "@cepedaio/utils";
 import {config} from "../../config";
 
 const suiteName = 'init-empty-project';
@@ -7,7 +7,7 @@ const suiteName = 'init-empty-project';
 describe('ws.init - Empty Project', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
-    const user = new MockCLIUser('vlm', ['ws', 'init', suiteName], {
+    const user = new MockCLIUser('cep', ['ws', 'init', suiteName], {
       cwd: config.tmpDir
     });
 
@@ -23,7 +23,7 @@ describe('ws.init - Empty Project', () => {
 
   it('should be seen in projects', async function() {
     this.timeout(0);
-    const user = new MockCLIUser('vlm', ['ws', 'projects']);
+    const user = new MockCLIUser('cep', ['ws', 'projects']);
 
     await user.waitFor(suiteName);
     await user.waitTillDone();
@@ -31,7 +31,7 @@ describe('ws.init - Empty Project', () => {
 
   it('should remove project', async function() {
     this.timeout(0);
-    const user = new MockCLIUser('vlm', ['ws', 'remove', suiteName]);
+    const user = new MockCLIUser('cep', ['ws', 'remove', suiteName]);
 
     await user.test([
       ['Are you sure you want to delete?', 'y'],
@@ -43,7 +43,7 @@ describe('ws.init - Empty Project', () => {
 
   it('should no longer be seen in projects', async function() {
     this.timeout(0);
-    const user = new MockCLIUser('vlm', ['ws', 'projects']);
+    const user = new MockCLIUser('cep', ['ws', 'projects']);
 
     const output = await user.nextMessage();
     expect(output.includes(suiteName)).to.be.false;

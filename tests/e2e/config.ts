@@ -12,7 +12,7 @@ const rootDir = normalize(`${__dirname}/../../`);
 export const config = {
   rootDir,
   tmpDir: normalize(`${rootDir}/tmp`),
-  vlmDataDir: normalize(`${homedir()}/.vlm`),
+  cepDataDir: normalize(`${homedir()}/.cep`),
   reposDir: normalize(`${__dirname}/repos`)
 }
 
