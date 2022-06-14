@@ -5,17 +5,11 @@ import {Project} from "../../models/Project";
 
 import basePackageJSON from "./package.json";
 import baseTsconfigJSON from "./tsconfig.json";
-import {readFile, writeFile} from "fs/promises";
-import {rootDir} from "../../../../configs/app";
+import {writeFile} from "fs/promises";
+import {isTestEnv, rootDir} from "../../../../configs/app";
 import {initializeProject} from "../../services/initializeProject";
 import {log1, log2} from "../../../../utils/log";
-
-async function getVlegmDependency(isTestEnv:boolean): Promise<string> {
-  const packageJSONPath = join(rootDir, 'package.json');
-  const fileContents = await readFile(packageJSONPath, 'utf-8');
-  const packageJSON = JSON.parse(fileContents);
-  return isTestEnv ? join(rootDir, `vlegm-cli-v${packageJSON.version}.tgz`) : `^${packageJSON.version}`;
-}
+import {getRootPackageJSON} from "../../../../utils/getRootPackageJSON";
 
 export async function unpack(projectName?: string) {
   if(!existsSync('./compose-provider.ts')) {
@@ -27,9 +21,10 @@ export async function unpack(projectName?: string) {
   log2('Creating Project', name);
 
   const project = await Project.init(name, cwd);
+  const rootPackageJSON = await getRootPackageJSON();
 
-  log1('Installing mocha dependencies...');
-  basePackageJSON.dependencies['@vlegm/cli'] = await getVlegmDependency(process.env.VLEGM_CLI_ENV === 'test');
+  log1('Installing dependencies...');
+  basePackageJSON.dependencies[rootPackageJSON.name] = isTestEnv ? join(rootDir, `cepedaio-cli-v${rootPackageJSON.version}.tgz`) : `^${rootPackageJSON.version}`;
   await writeFile(`${project.root}/package.json`, JSON.stringify(basePackageJSON, null, 2));
   await writeFile(`${project.root}/tsconfig.json`, JSON.stringify(baseTsconfigJSON, null, 2));
 

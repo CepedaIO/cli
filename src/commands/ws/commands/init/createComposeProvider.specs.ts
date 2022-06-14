@@ -32,7 +32,7 @@ describe('createComposeProvider', () => {
       name: 'cli',
       repos: [
         {
-          url: 'git@github.com:vlegm/cli.git',
+          url: 'git@github.com:cepedaio/cli.git',
           init: 'yarn install'
         }
       ]
