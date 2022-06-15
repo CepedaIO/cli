@@ -10,14 +10,14 @@
     "cpa": "./dist/cli.js"
   },
   "scripts": {
-    "dev": "ts-node --files src/cli.ts",
+    "dev": "node --require ts-node/register src/cli.ts",
     "dev:install": "npm install -g ./",
     "build": "tsc",
-    "build:image": "docker build -t vlegm/cli .",
+    "build:image": "docker build -t cepedaio/cli .",
     "generate": "json2ts assets/docker-compose.schema.json > src/docker-compose.ts",
     "test": "mocha --exit --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
     "e2e": "cross-env VLEGM_CLI_ENV=test mocha --require ts-node/register 'tests/e2e/specs/**/*.specs.ts'",
-    "e2e:image": "vlm shell -d -i src,tests vlegm/cli yarn e2e",
+    "e2e:image": "cpa shell -d -i src,tests vlegm/cli yarn e2e",
     "test:watch": "mocha -w --watch-extensions ts --require ts-node/register --require configs/unit.ts src/**/*.specs.ts",
     "prepublishOnly": "yarn build"
   },

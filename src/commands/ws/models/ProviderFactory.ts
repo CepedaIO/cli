@@ -1,4 +1,5 @@
 import {Dict, ServiceProvider, ServiceProviderDefaults, ShellCommand} from "../../../types";
+import {merge} from "node-json-db/dist/lib/Utils";
 
 export function isProviderFactory(obj:any): obj is ProviderFactory {
 	return !!obj.provider && !!obj.base && !!obj.defaults && typeof obj.npmLink === 'function';
@@ -10,7 +11,9 @@ export class ProviderFactory {
 	constructor(
 		public base:ServiceProvider = {},
 		public defaults: ServiceProviderDefaults = {}
-	) {}
+	) {
+		merge()
+	}
 
 	image(image: ServiceProvider['image']): ProviderFactory {
 		this.provider.image = image;
@@ -59,5 +62,11 @@ export class ProviderFactory {
 			...values
 		};
 		return this;
+	}
+
+	addPort(port:number | number[]) {
+		const doAddPort = (port: number) => {
+
+		}
 	}
 }
