@@ -10,13 +10,13 @@ export async function stop(serviceName?: string, projectName?: string) {
      * service provided, restart for service
      */
     console.log(`Stopping service: ${serviceName}`);
-    await run('docker-compose', ['stop', serviceName], project.root);
-    await run('docker-compose', ['rm', serviceName], project.root);
+    await run('docker', ['compose', 'stop', serviceName], project.root);
+    await run('docker', ['compose', 'rm', serviceName], project.root);
   } else {
     /**
      * No service provided, stop whole project
      */
     console.log('Stopping project!');
-    await run('docker-compose', ['down'], project.root);
+    await run('docker', ['compose', 'down'], project.root);
   }
 }

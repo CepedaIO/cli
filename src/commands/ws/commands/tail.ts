@@ -19,5 +19,5 @@ export async function tail(serviceName:string, projectName?:string, options?:Sta
     flags.push('-f')
   }
 
-  await run('docker-compose', ['logs', ...flags, serviceName], project.root);
+  await run('docker', ['compose', 'logs', ...flags, serviceName], project.root);
 }

@@ -13,7 +13,7 @@ export async function exec(serviceName: string, command:string, projectName?: st
   console.log(`Executing: ${chalk.blueBright(command)}`);
   console.log(`Within Service: ${chalk.blueBright(serviceName)}`);
 
-  await run('docker-compose', ['exec', serviceName, command], {
+  await run('docker compose', ['exec', serviceName, command], {
     cwd: project.root
   });
 }
