@@ -1,6 +1,6 @@
-import {ProviderFactory} from "../models/ProviderFactory";
-import {DockerService} from "../../../docker-compose";
-import {ProviderContext} from "../../../types";
+import {ProviderFactory} from "../../models/ProviderFactory";
+import {DockerService} from "../../../../docker-compose";
+import {ProviderContext} from "../../../../types";
 
 export function NodeJS(expose: number | number[]): ProviderFactory {
   const toPortDefinition = (port:number) => `${port}:${port}`;

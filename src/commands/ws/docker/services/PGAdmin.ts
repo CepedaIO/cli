@@ -1,4 +1,4 @@
-import {Dict, DockerService, DockerVolume, ProviderContext, iServiceResolver} from "../../../types";
+import {Dict, DockerService, DockerVolume, ProviderContext, iServiceResolver} from "../../../../types";
 
 interface ServiceVariables {
   PGADMIN_PORT: number;

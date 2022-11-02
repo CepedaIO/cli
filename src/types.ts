@@ -10,6 +10,8 @@ export interface Dict<T> {
 export type ShellCommand = string | string[];
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type RequireBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
+export type Tuple<T, K = T> = [T, K];
+export type Linkable = RepoInfo;
 
 export interface RepoInfo {
   url: string;

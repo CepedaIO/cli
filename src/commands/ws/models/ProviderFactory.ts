@@ -1,12 +1,51 @@
-import {Dict, ServiceProvider, ServiceProviderDefaults, ShellCommand} from "../../../types";
+import {Dict, Linkable, ServiceProvider, ServiceProviderDefaults, ShellCommand, Tuple} from "../../../types";
 import {merge} from "node-json-db/dist/lib/Utils";
+import {Env} from "../docker";
 
 export function isProviderFactory(obj:any): obj is ProviderFactory {
 	return !!obj.provider && !!obj.base && !!obj.defaults && typeof obj.npmLink === 'function';
 }
 
+export type EnvConfiguration = (service: ServiceConfiguration) => void;
+
+export class ServiceConfiguration {
+	private links: Linkable[] = [];
+	private mounts: string[] = [];
+	private commands: string[] = [];
+	private ports: Tuple<number>[] = [];
+	public then = this;
+
+	link(...services: Linkable[]): ServiceConfiguration {
+		this.links = this.links.concat(services);
+		return this;
+	}
+	
+	mount(...dirs: string[]): ServiceConfiguration {
+		this.mounts = this.mounts.concat(dirs);
+		return this;
+	}
+	
+	run(...commands: string[]): ServiceConfiguration {
+		this.commands = this.commands.concat(commands);
+		return this;
+	}
+	
+	port(...ports: Array<number | Tuple<number>>): ServiceConfiguration {
+		ports.forEach((port) => {
+			if(Array.isArray(port)) {
+				this.ports = this.ports.concat(port);
+			} else {
+				this.ports = this.ports.concat([port, port]);
+			}
+		});
+		
+		return this;
+	}
+}
+
 export class ProviderFactory {
 	public provider:ServiceProvider = {};
+	public environments: Map<Env, ServiceConfiguration> = new Map();
 
 	constructor(
 		public base:ServiceProvider = {},
@@ -52,15 +91,11 @@ export class ProviderFactory {
 		return this;
 	}
 
-	env(values:Dict<string | number>): ProviderFactory {
-		if(!this.provider.env) {
-			this.provider.env = {};
-		}
-
-		this.provider.env = {
-			...this.provider.env,
-			...values
-		};
+	env(env: Env, configure: (service: ServiceConfiguration) => void): ProviderFactory {
+		const service = new ServiceConfiguration();
+		configure(service);
+		this.environments.set(env, service);
+		
 		return this;
 	}
 

@@ -115,7 +115,6 @@ export class ServiceResolver implements iServiceResolver, iEntrypointFactory {
       throw new Error(`Unable to determine package manager for (${this.name}), did you 'yarn install'?`);
     }
 
-    debugger;
     const nameMap = await this.npmLinks().reduce(async (res, serviceName) => {
       const path = `${project.services.root}/${serviceName}/package.json`;
       if(!existsSync(path)) {
