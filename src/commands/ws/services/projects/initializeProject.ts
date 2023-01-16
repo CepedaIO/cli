@@ -1,12 +1,12 @@
-import {NormalizedComposeProvider} from "../../../types";
-import {providerFromProject} from "./providerFromProject";
-import {Composer, composer} from "./composer";
-import {iProject, Project} from "../models/Project";
+import {NormalizedComposeProvider} from "../../../../types";
+import {definitionsForProject} from "./definitionsForProject";
+import {Composer} from "../composer";
+import {iProject, Project} from "../../models/Project";
 import {existsSync} from "fs";
 import {mkdir} from "fs/promises";
 import chalk from "chalk";
 import {run} from "@cepedaio/utils";
-import {log1, log2} from "../../../utils/log";
+import {log1, log2} from "../../../../utils/log";
 
 export async function initializeProject(project:iProject) {
   log1('Initializing Project');
@@ -14,11 +14,10 @@ export async function initializeProject(project:iProject) {
     cwd: project.root,
     shell: true
   });
-
-  const provider:NormalizedComposeProvider = providerFromProject(project);
-  addSources(composer, provider);
+  
+  const { app, composer } = definitionsForProject(project);
   await createSources(project, composer);
-  return provider;
+  return app;
 }
 
 function addSources(composer:Composer, provider: NormalizedComposeProvider) {

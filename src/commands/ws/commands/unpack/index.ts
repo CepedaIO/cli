@@ -7,7 +7,7 @@ import basePackageJSON from "./package.json";
 import baseTsconfigJSON from "./tsconfig.json";
 import {writeFile} from "fs/promises";
 import {isTestEnv, rootDir} from "../../../../configs/app";
-import {initializeProject} from "../../services/initializeProject";
+import {initializeProject} from "../../services/projects/initializeProject";
 import {log1, log2} from "../../../../utils/log";
 import {getRootPackageJSON} from "../../../../utils/getRootPackageJSON";
 

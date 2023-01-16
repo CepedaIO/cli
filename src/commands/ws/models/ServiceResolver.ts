@@ -3,7 +3,7 @@ import {
   DockerService,
   FieldProvider,
   ProviderContext, RepoInfo,
-  ServiceProvider, iEntrypointFactory, iServiceResolver, ServiceProviderDefaults,
+  OldServiceProvider, iEntrypointFactory, iServiceResolver, ServiceProviderDefaults,
 } from "../../../types";
 import {isFunction} from "@cepedaio/utils";
 import {basename, isAbsolute} from "path";
@@ -56,7 +56,7 @@ export class ServiceResolver implements iServiceResolver, iEntrypointFactory {
   public name!: string;
 
   constructor(
-    public provider: ServiceProvider,
+    public provider: OldServiceProvider,
     public defaults: ServiceProviderDefaults = {}
   ) {}
 
@@ -166,7 +166,7 @@ export class ServiceResolver implements iServiceResolver, iEntrypointFactory {
       if(this.provider.entrypoint) {
         actions.push(`sh ${this.provider.entrypoint}`);
       }
-
+  
       actions.unshift('#!/usr/bin/env sh');
     }
 

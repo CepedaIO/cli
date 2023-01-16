@@ -35,7 +35,7 @@ export async function processServices(project:iProject, provider: NormalizedComp
           const runtime = serviceFactory.defaults.runtime(context);
           Object.entries(runtime).forEach(([key, value]) => serviceDef[key] = value);
         } else {
-          throw new Error(`No runtime provided for: ${serviceName}`);
+        
         }
       }
 

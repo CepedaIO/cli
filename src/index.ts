@@ -4,7 +4,7 @@ export * from "./commands/ws/models/RepoSource";
 
 export {
 	ComposeProvider,
-	ServiceProvider,
+	OldServiceProvider,
 	ProviderContext,
 	RepoInfo,
 	ShellCommand,

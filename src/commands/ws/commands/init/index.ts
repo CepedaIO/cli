@@ -6,7 +6,7 @@ import { createProjectFiles } from './createProjectFiles';
 import { Project } from "../../models/Project";
 import { getRoot } from '../../services/getRoot';
 import {WorkstationAnswers} from "../../../../types";
-import {initializeProject} from "../../services/initializeProject";
+import {initializeProject} from "../../services/projects/initializeProject";
 
 export async function init(name: string) {
   const answers: WorkstationAnswers = {

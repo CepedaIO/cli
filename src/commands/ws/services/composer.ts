@@ -7,7 +7,7 @@ export class Composer {
     this.sources.set(serviceName, source);
   }
 
-  addNodeJSSource(serviceName: string, url: string, init: string | string[] = 'yarn install') {
+  addNodeJSSource(serviceName: string, url: string, init: string | string[] = '%PACKAGE_MANAGER% install') {
     this.addSource(serviceName, { url, init });
   }
 

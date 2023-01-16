@@ -37,7 +37,7 @@ export function isRepoInfo(obj:any): obj is RepoInfo {
   return typeof obj.url === 'string';
 }
 
-export function isServiceProvider(obj:any): obj is ServiceProvider {
+export function isServiceProvider(obj:any): obj is OldServiceProvider {
   return obj.image || obj.build;
 }
 
@@ -70,8 +70,8 @@ export interface ServiceProviderOptionals {
 }
 
 export type ServiceProviderKeys = 'command' | 'image' | 'build' | 'volumes'
-export type ServiceProvider = Omit<MapAsProvider<DockerService, ServiceProviderKeys>, 'env_file'>;
-export type isRepoReference = RequireBy<ServiceProvider, 'repo'>;
+export type OldServiceProvider = Omit<MapAsProvider<DockerService, ServiceProviderKeys>, 'env_file'>;
+export type isRepoReference = RequireBy<OldServiceProvider, 'repo'>;
 
 export interface ProviderContext {
   name: string;
@@ -83,7 +83,7 @@ export interface ComposeProvider {
   version: string;
   env?: Dict<string | number>;
   predefined?: string[];
-  services?: Dict<ServiceProvider | iServiceResolver>;
+  services?: Dict<OldServiceProvider | iServiceResolver>;
   volumes?: Dict<DockerVolume>;
 }
 

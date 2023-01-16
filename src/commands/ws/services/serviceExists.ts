@@ -1,4 +1,4 @@
-import {servicesForProject} from "./servicesForProject";
+import {providerNamesForProject} from "./projects/providerNamesForProject";
 import {iProject} from "../models/Project";
 
 export function serviceExists(service:string | undefined, project:iProject): service is string{
@@ -6,6 +6,6 @@ export function serviceExists(service:string | undefined, project:iProject): ser
     return false;
   }
 
-  const services = servicesForProject(project);
+  const services =  providerNamesForProject(project);
   return services.includes(service);
 }
