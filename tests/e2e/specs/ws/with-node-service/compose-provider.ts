@@ -1,5 +1,5 @@
 //@ts-ignore
-import {NodeJSService} from "@cepedaio/cli";
+import {NodeJS} from "@cepedaio/cli";
 
-export const server = NodeJSService(3000)
-	.setSource(`git@github.com:cepedaio/cli-server.git`);
+export const server = NodeJS(3000)
+	.source(`git@github.com:cepedaio/cli-server.git`, { init: 'yarn install' });

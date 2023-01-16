@@ -81,7 +81,7 @@ export class StandardTester {
   shouldInitializeWorkstation(services: NodeJS.Dict<string> = {}, options: RunOptions = {}) {
     return _it('should initialize workstation', async () => {
       const serviceEntries = Object.entries(services);
-      const user = createCLIUser('cep', ['ws', 'unpack'], this.suiteDir, options);
+      const user = createCLIUser('cpa', ['ws', 'unpack'], this.suiteDir, options);
 
       await user.waitTillDone();
 
@@ -112,7 +112,7 @@ export class StandardTester {
 
   shouldShowProjectAsCreated(options:RunOptions = {}) {
     return _it('should show project as created', async () => {
-      const user = createCLIUser('cep', ['ws', 'projects'], this.suiteDir, options);
+      const user = createCLIUser('cpa', ['ws', 'projects'], this.suiteDir, options);
 
       await user.test([
         this.suiteName
@@ -127,8 +127,8 @@ export class StandardTester {
     return _it('should include service', async () => {
       const services = specs.otherServices || [];
       const user = specs.serviceName ?
-        createCLIUser('cep', ['ws', 'include', specs.serviceName, this.suiteName], this.suiteDir, options) :
-        createCLIUser('cep', ['ws', 'include', this.suiteName], this.suiteDir, options);
+        createCLIUser('cpa', ['ws', 'include', specs.serviceName, this.suiteName], this.suiteDir, options) :
+        createCLIUser('cpa', ['ws', 'include', this.suiteName], this.suiteDir, options);
 
       if(specs.serviceName) {
         services.push(specs.serviceName);
@@ -149,8 +149,8 @@ export class StandardTester {
     return _it('should exclude service', async () => {
       const services = specs.otherServices || [];
       const user = specs.serviceName ?
-        createCLIUser('cep', ['ws', 'exclude', specs.serviceName, this.suiteName], this.suiteDir, options) :
-        createCLIUser('cep', ['ws', 'exclude', this.suiteName], this.suiteDir, options);
+        createCLIUser('cpa', ['ws', 'exclude', specs.serviceName, this.suiteName], this.suiteDir, options) :
+        createCLIUser('cpa', ['ws', 'exclude', this.suiteName], this.suiteDir, options);
 
       if(specs.serviceName) {
         services.push(specs.serviceName);
@@ -172,7 +172,7 @@ export class StandardTester {
     }>
   } = {}, options:RunOptions = {}) {
     return _it('should be able to start', async () => {
-      const user = createCLIUser('cep', ['ws', 'start', this.suiteName], this.suiteDir, options);
+      const user = createCLIUser('cpa', ['ws', 'start', this.suiteName], this.suiteDir, options);
       user.specTimeout = 15000;
 
       await user.test(specs.test || [
@@ -189,7 +189,7 @@ export class StandardTester {
         }
 
         if (actions.tail) {
-          const user = createCLIUser('cep', ['ws', 'tail', service, this.suiteName], this.suiteDir, options);
+          const user = createCLIUser('cpa', ['ws', 'tail', service, this.suiteName], this.suiteDir, options);
           user.specTimeout = 60000;
 
           await user.test(actions.tail);
@@ -213,7 +213,7 @@ export class StandardTester {
 
   shouldBeAbleToStop(options:RunOptions = {}) {
     return _it('should be able to stop', async () => {
-      const user = createCLIUser('cep', ['ws', 'stop', this.suiteName], this.suiteDir, options);
+      const user = createCLIUser('cpa', ['ws', 'stop', this.suiteName], this.suiteDir, options);
 
       user.specTimeout = 15000;
 
@@ -227,7 +227,7 @@ export class StandardTester {
 
   shouldRemoveProject(options:RunOptions = {}) {
     return _it('should remove project', async () => {
-      const user = createCLIUser('cep', ['ws', 'remove', this.suiteName], this.suiteDir, options);
+      const user = createCLIUser('cpa', ['ws', 'remove', this.suiteName], this.suiteDir, options);
 
       user.specTimeout = 5000;
 
@@ -242,7 +242,7 @@ export class StandardTester {
 
   shouldNotShowProjectAsCreated(options:RunOptions = {}) {
     return _it(`should not show ${this.suiteName} project as created`, async () => {
-      const user = createCLIUser('cep', ['ws', 'projects'], this.suiteDir, options);
+      const user = createCLIUser('cpa', ['ws', 'projects'], this.suiteDir, options);
       let err;
 
       try {

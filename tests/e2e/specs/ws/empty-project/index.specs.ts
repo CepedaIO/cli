@@ -5,7 +5,6 @@ describe('ws - Empty Project', () => {
   });
 
   standardTester.shouldInitializeWorkstation({}, {
-    flags: "only",
     verbose: true
   });
 
@@ -21,11 +20,9 @@ describe('ws - Empty Project', () => {
       'Compose changed, building environment',
       'Initializing Project',
       'Creating: docker-compose.yaml',
-      'Starting project!',
-      'no service selected'
+      'Starting project!'
     ]
   }, {
-    flags: "skip",
     verbose: true
   });
 

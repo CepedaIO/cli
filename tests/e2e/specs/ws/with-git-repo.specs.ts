@@ -10,7 +10,7 @@ const suiteDir = join(config.tmpDir, suiteName);
 describe('ws.init - Project with git repo ', () => {
   it('should initialize workstation', async function () {
     this.timeout(0);
-    const user = new MockCLIUser('cep', ['ws', 'init', suiteName], {
+    const user = new MockCLIUser('cpa', ['ws', 'init', suiteName], {
       cwd: config.tmpDir
     });
 
@@ -38,7 +38,7 @@ describe('ws.init - Project with git repo ', () => {
 
   it('should remove project', async function() {
     this.timeout(0);
-    const user = new MockCLIUser('cep', ['ws', 'remove', suiteName], {
+    const user = new MockCLIUser('cpa', ['ws', 'remove', suiteName], {
       cwd: suiteDir
     });
 

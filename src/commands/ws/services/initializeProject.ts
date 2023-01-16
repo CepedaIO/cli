@@ -6,7 +6,7 @@ import {existsSync} from "fs";
 import {mkdir} from "fs/promises";
 import chalk from "chalk";
 import {run} from "@cepedaio/utils";
-import {log1} from "../../../utils/log";
+import {log1, log2} from "../../../utils/log";
 
 export async function initializeProject(project:iProject) {
   log1('Initializing Project');
@@ -47,7 +47,7 @@ async function createSources(project:iProject, composer:Composer) {
     const serviceRoot = `${project.services.root}/${serviceName}`;
 
     if(!existsSync(serviceRoot)) {
-      console.log(`Cloning repo for: ${chalk.greenBright(serviceName)}`);
+      log2('Cloning repo for:', chalk.greenBright(serviceName));
       await run('git', ['clone', source.url, serviceName], { cwd: project.services.root });
 
       const runCommand = async (init:string) => {

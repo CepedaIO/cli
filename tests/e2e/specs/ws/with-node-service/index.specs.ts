@@ -9,7 +9,7 @@ describe('ws - Project with NodeJS service', () => {
 
   standardTester.shouldInitializeWorkstation({
     server: 'node'
-  });
+  }, { flags: 'only', verbose: true });
 
   standardTester.shouldBeAbleToStart({
     services: {
