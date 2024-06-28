@@ -46,11 +46,11 @@ export async function generateStartFiles(project: iProject, options: StartOption
     await initializeProject(project);
 
     const { app: { environments, providers } } = definitionsForProject(project);
-    const dockerResolver = new DockerResolver();
     const env = environments.find((env) => env.name === options.env);
     
     if(!env) throw new Error(`No environment defined for: ${options.env}`);
     
+    const dockerResolver = new DockerResolver();
     await dockerResolver.generate(providers, {
       env,
       project,

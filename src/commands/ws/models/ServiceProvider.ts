@@ -4,6 +4,16 @@ import {
 } from "../../../types";
 import {Env} from "../docker";
 
+type CommandManager = {
+	run: string[];
+}
+
+type CommandFunctionArgs = ({
+	manager: CommandManager
+}) => string[]
+
+type CommandFunction = ({})
+
 export function isProviderFactory(obj:any): obj is ServiceProvider {
 	return !!obj.provider && !!obj.base && !!obj.defaults && typeof obj.npmLink === 'function';
 }
@@ -12,14 +22,25 @@ export interface IServiceResolver {
 	getServiceConfig(env: Env): IServiceConfig;
 }
 
+export interface IManager {
+	run: (command: string) => string;
+}
+
+export interface CommandOptions {
+	manager: IManager;
+}
 export interface IEnvServiceConfig {
 	links: ServiceProvider[];
 	mounts: ServiceProvider[];
-	commands: string[]
+	commands: string[] | CommandFunctionArgs;
 	ports: Tuple<number>[];
 	includes: string[];
 	variables: Tuple<string>[];
 	inits: string[];
+}
+
+export interface ResolvedEnvServiceConfig extends IEnvServiceConfig {
+	commands: string[];
 }
 
 export interface IServiceConfig extends IEnvServiceConfig {
@@ -58,7 +79,14 @@ export class EnvServiceProvider {
 	}
 	
 	run(...commands: string[]): EnvServiceProvider {
-		this.config.commands = this.config.commands.concat(commands);
+		if(typeof this.config.commands === 'function') {
+			this.config.commands = this.config.commands({
+				manager: []
+			})
+		} else if(Array.isArray(this.config.commands)) {
+			this.config.commands = this.config.commands.concat(commands);
+		}
+		
 		
 		return this;
 	}
@@ -165,7 +193,8 @@ export class ServiceProvider extends EnvServiceProvider implements IServiceResol
 		return super.needsEntrypoint() || this.config.links.length > 0 || this.config.commands.length > 0;
 	}
 	
-	get<K extends keyof IEnvServiceConfig>(field: K, env:Env): IEnvServiceConfig[K] {
+	// @ts-ignore
+	get<K extends keyof IEnvServiceConfig>(field: K, env:Env): ResolvedEnvServiceConfig[K] {
 		const envProvider = this.environments.get(env);
 		const providerValue = this.config[field];
 		const envValue = envProvider && envProvider.config[field]
@@ -176,9 +205,17 @@ export class ServiceProvider extends EnvServiceProvider implements IServiceResol
 				return providerValue.concat(envValue);
 			}
 			
-			return envValue;
+			if(typeof envValue === 'function') {
+				return [];
+			} else if(Array.isArray(envValue)) {
+				return envValue;
+			}
 		}
 		
-		return providerValue;
+		if(typeof providerValue === 'function') {
+			return [];
+		} else if(Array.isArray(providerValue)) {
+			return providerValue;
+		}
 	}
 }

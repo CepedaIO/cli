@@ -15,7 +15,7 @@ export function definitionsForProject(project: iProject): {
   composer: Composer
 } {
   const composer = new Composer();
-  const path = `${project.root}/.dist/app-provider.js`;
+  const path = `${project.root}/.dist/compose-provider.js`;
   const allExports = require(path);
   const app:AppDefinition = {
     providers: [],

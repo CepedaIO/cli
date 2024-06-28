@@ -3,13 +3,11 @@ import axios from "axios";
 import {expect} from "chai";
 
 describe('ws - Project with NodeJS service', () => {
-  let standardTester:StandardTester = new StandardTester('with-node-service', __dirname, {
-    skipCleanup: false,
-  });
+  let standardTester:StandardTester = new StandardTester('with-node-service', __dirname);
 
   standardTester.shouldInitializeWorkstation({
     server: 'node'
-  }, { flags: 'only', verbose: true });
+  });
 
   standardTester.shouldBeAbleToStart({
     services: {
@@ -30,5 +28,5 @@ describe('ws - Project with NodeJS service', () => {
 
   standardTester.shouldExcludeService({
     serviceName: 'server'
-  }, { flags: 'skip' });
+  });
 });

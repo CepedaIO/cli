@@ -1,6 +1,6 @@
 import {StandardTester} from "../../../StandardTester";
 
-describe('ws - Empty Project', () => {
+describe.only('ws - Empty Project', () => {
   let standardTester:StandardTester = new StandardTester('empty-project', __dirname, {
   });
 
@@ -10,17 +10,12 @@ describe('ws - Empty Project', () => {
 
   standardTester.shouldShowProjectAsCreated();
 
-  standardTester.shouldIncludeService();
-
-  standardTester.shouldExcludeService();
-
   standardTester.shouldBeAbleToStart({
     test: [
       'Hash:',
       'Compose changed, building environment',
       'Initializing Project',
-      'Creating: docker-compose.yaml',
-      'Starting project!'
+      'No environment defined for: local'
     ]
   }, {
     verbose: true

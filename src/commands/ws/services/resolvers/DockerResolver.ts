@@ -147,7 +147,7 @@ export class DockerResolver {
     return {
       ...runtime,
       ...volumes,
-      command: provider.get('commands', context.env),
+       command: provider.get('commands', context.env),
       working_dir: this.workDirFor(provider)
     }
   }
