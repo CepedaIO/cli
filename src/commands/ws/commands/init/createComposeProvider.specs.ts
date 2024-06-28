@@ -10,6 +10,8 @@ describe('createComposeProvider', () => {
     });
 
     expect(compose).to.equalIgnoreSpaces(`
+      import { ComposeProvider, ProviderContext } from "@cepedaio/cli";
+      
       export default {
         "version": "3.7",
         "services": {
@@ -18,11 +20,11 @@ describe('createComposeProvider', () => {
               "ports": ["3306:3306"],
               "volumes": ["mysql:/var/lib/mysql"],
             },
-        }, 
+        },
         "volumes": {
           "mysql": {},
         }
-      } as DockerComposeConfig
+      } as ComposeProvider
     `);
   });
 
@@ -39,23 +41,26 @@ describe('createComposeProvider', () => {
     });
 
     expect(compose).to.equalIgnoreSpaces(`
+      import { ComposeProvider, ProviderContext } from "@cepedaio/cli";
+      
       export default {
         "version": "3.7",
         "services": {
-          "cli": {      
-            "tty": true,           
-            "command": (env: string, options: CommandOptions) => {
+          "cli": {
+            "repo": {"url":"git@github.com:cepedaio/cli.git","init":"yarn install"},
+            "tty": true,
+            "command": (context:ProviderContext) => {
               return "yarn dev"
-            },           
-            "image": (env: string) => {
-              return "nodejs:14"
-            },          
-            "volumes": ["/app:/home/alfred/repos/vlegm/cli/cli/cli"],       
+            },
+            "image": (context:ProviderContext) => {
+              return "vlegm/dev-alpine:latest"
+            },
+            "volumes": ["./cli:/mnt/host"],
           },
-        }, 
+        },
         "volumes": {
         }
-      } as DockerComposeConfig
+      } as ComposeProvider
     `);
   });
 });
