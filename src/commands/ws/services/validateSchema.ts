@@ -39,7 +39,7 @@ interface ValidateResult<T> {
   errors: ErrorObject[]
 }
 
-export function validateSchema<T>(obj:T, schema: JSONSchemaType<T>, options: ValidateOptions & Options): ValidateResult<T> {
+export function validateSchema<T extends Object>(obj:T, schema: JSONSchemaType<T>, options: ValidateOptions & Options): ValidateResult<T> {
   const ajv = new AJV({
     allowUnionTypes: true,
     allErrors: true,

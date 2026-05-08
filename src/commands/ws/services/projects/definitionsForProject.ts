@@ -24,17 +24,16 @@ export function definitionsForProject(project: iProject): {
   };
   
   for(const [exportName, exported] of Object.entries(allExports)) {
-    if (exported instanceof ServiceProvider) {
-      exported.name = exportName;
+    (exported as any).name = exportName;
+    if (ServiceProvider.is(exported)) {
       app.providers.push(exported);
       
       if(exported.config.source) {
         composer.addSource(exported.name, exported.config.source);
       }
     }
-    
-    if (exported instanceof Env) {
-      exported.name = exportName;
+
+    if (Env.is(exported)) {
       app.environments.push(exported);
     }
     

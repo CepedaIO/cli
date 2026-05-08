@@ -1,5 +1,12 @@
 //@ts-ignore
-import {NodeJS} from "@cepedaio/cli";
+import {NodeJS, Env} from "@cepedaio/cli";
 
-export const server = NodeJS(3000)
-	.source(`git@github.com:cepedaio/cli-server.git`, 'yarn install');
+export const local = new Env();
+
+export const server = NodeJS({
+    url: `git@github.com:cepedaio/cli-server.git`,
+    init: 'npm install'
+}).env(local, ({service}) => {
+    service.port(3000);
+})
+

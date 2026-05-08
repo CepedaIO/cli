@@ -11,23 +11,31 @@ import {JSAML} from "../../../../../../utils";
 import {Context} from "../../ws-types";
 
 export class DockerResolver {
-  async generate(providers: ServiceProvider[], context: Context) {
-    const compose = await this.create(providers, context);
-    const validatedCompose = await this.validate(compose);
-    await this.write(validatedCompose, providers, context);
-  }
-
-  async write(compose: DockerCompose, providers:ServiceProvider[], context: Context): Promise<void> {
-    console.log(`Writing: ${chalk.                                                                    greenBright('docker-compose.yaml')}`)
-    await JSAML.save(compose, `${context.project.root}/docker-compose.yaml`);
-    
-    for(const provider of providers) {
-      if(provider.needsEntrypoint()) {
-        await this.writeEntrypoint(provider, context);
-      }
+    async generate(providers: ServiceProvider[], context: Context) {
+        const compose = await this.create(providers, context);
+        const validatedCompose = await this.validate(compose);
+        await this.write(validatedCompose, providers, context);
     }
-  }
-  
+
+    private needsEntrypointFor(provider: ServiceProvider, context: Context): boolean {
+        const commands = provider.get('commands', context.env);
+        const links = provider.get('links', context.env);
+
+        return (Array.isArray(links) && links.length > 0) ||
+            (Array.isArray(commands) && commands.length > 0);
+    }
+
+    async write(compose: DockerCompose, providers:ServiceProvider[], context: Context): Promise<void> {
+        console.log(`Writing: ${chalk.greenBright('docker-compose.yaml')}`)
+        await JSAML.save(compose, `${context.project.root}/docker-compose.yaml`);
+
+        for(const provider of providers) {
+            if(this.needsEntrypointFor(provider, context)) {
+                await this.writeEntrypoint(provider, context);
+            }
+        }
+    }
+
   async validate(compose: DockerCompose): Promise<DockerCompose> {
     console.log(`Validating: ${chalk.greenBright('docker-compose.yaml')}`);
     const schemaBuffer = await readFile(`${assetsDir}/docker-compose.schema.json`);
@@ -50,7 +58,7 @@ export class DockerResolver {
     const services = providers.reduce((services, provider) => ({
       [provider.name]: this.serviceDefinitionFrom(provider, context)
     }), {});
-    
+
     return {
       version: '3.7',
       services
@@ -100,62 +108,71 @@ export class DockerResolver {
     return provider.config.workDir || `/mnt/${provider.name}`;
   }
 
-  volumesFor(provider: ServiceProvider, context: Context): Partial<DockerService> {
+volumesFor(provider: ServiceProvider, context: Context): Partial<DockerService> {
     const volumes: string[] = [];
     const includes = provider.get('includes', context.env);
     const mounts = provider.get('mounts', context.env);
     const links = provider.get('links', context.env);
     const workDir = this.workDirFor(provider);
-    const servicePath = path.join('./services', provider.name);
-  
+    const servicePath = path.join('services', provider.name);
+
     if(includes.length === 0) {
-      volumes.push(`${servicePath}:${workDir}`);
+        volumes.push(`./${servicePath}:${workDir}`);
     } else {
-      includes.forEach((dir) => {
-        const dirPath = path.join(workDir, dir);
-        const serviceDirPath = path.join(servicePath, dir);
-        volumes.push(`${serviceDirPath}:${dirPath}`);
-      });
+        includes.forEach((dir) => {
+            const dirPath = path.join(workDir, dir);
+            const serviceDirPath = path.join(servicePath, dir);
+            volumes.push(`${serviceDirPath}:${dirPath}`);
+        });
     }
-    
+
     mounts.concat(links).forEach((mountProvider) => {
-      const mountDir = `./services/${mountProvider.name}`;
-      volumes.push(`${mountDir}:/mnt/${mountProvider.name}`);
+        const mountDir = `./services/${mountProvider.name}`;
+        volumes.push(`${mountDir}:/mnt/${mountProvider.name}`);
     });
-  
+
     const definition: Partial<DockerService> = {
-      volumes
+        volumes
     };
-    
-    if(provider.needsEntrypoint()) {
-      const entrypointName = `${provider.name}-entrypoint.sh`;
-      const entrypointPath = `./.dist/${entrypointName}`;
-      volumes.push(`${entrypointPath}:/mnt/entrypoint.sh`);
-      
-      definition.entrypoint = '/mnt/entrypoint.sh';
+
+    if(this.needsEntrypointFor(provider, context)) {
+        const entrypointName = `${provider.name}-entrypoint.sh`;
+        const entrypointPath = `./.dist/${entrypointName}`;
+        volumes.push(`${entrypointPath}:/mnt/entrypoint.sh`);
+
+        definition.entrypoint = '/mnt/entrypoint.sh';
     }
-    
+
     return definition;
-  }
-  
-  serviceDefinitionFrom(provider: ServiceProvider, context:Context): DockerService {
+}
+
+serviceDefinitionFrom(provider: ServiceProvider, context:Context): DockerService {
     const runtime = this.runtimeFor(provider, context);
     const volumes = this.volumesFor(provider, context);
-    
+
     if(!runtime) throw new Error(`No runtime provided for: ${provider.name}`);
-    
+
+    const usesEntrypoint = this.needsEntrypointFor(provider, context);
+
+    const ports = provider.get('ports', context.env) || [];
+    const portMappings = `${(Array.isArray(ports) ? ports : [])
+        .join(':')}`;
+
     return {
-      ...runtime,
-      ...volumes,
-       command: provider.get('commands', context.env),
-      working_dir: this.workDirFor(provider)
+        ...runtime,
+        ...volumes,
+        working_dir: this.workDirFor(provider),
+        ports: [portMappings],
+        command: usesEntrypoint ? undefined : provider.get('commands', context.env)
     }
-  }
-  
+}
+
   runtimeFor(provider:ServiceProvider, context: Context): Partial<DockerService> {
-    if(provider.config.runtime) {
+    const config = provider.getServiceConfig(context);
+
+    if(config.runtime) {
       return {
-        image: provider.config.runtime
+        image: config.runtime
       };
     }
     
@@ -167,7 +184,7 @@ export class DockerResolver {
         build: `./services/${provider.name}`
       };
     }
-    
+
     throw new Error(`No runtime defined for: ${provider.name}`);
   }
 }

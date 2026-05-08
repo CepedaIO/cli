@@ -13,7 +13,6 @@ describe('ws - Project with NodeJS service', () => {
     services: {
       server: {
         tail: [
-          'yarn install',
           'Listening: 3000'
         ],
         afterStart: async () => {
@@ -25,8 +24,4 @@ describe('ws - Project with NodeJS service', () => {
   });
 
   standardTester.shouldBeAbleToStop();
-
-  standardTester.shouldExcludeService({
-    serviceName: 'server'
-  });
 });

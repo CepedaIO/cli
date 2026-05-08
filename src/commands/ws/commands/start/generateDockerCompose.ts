@@ -15,6 +15,7 @@ import {iProject} from "../../models/Project";
 export async function createDockerCompose(project:iProject, config:NormalizedComposeProvider, options:StartOptions): Promise<DockerCompose> {
   const schemaBuffer = await readFile(`${assetsDir}/docker-compose.schema.json`);
   const schema = JSON.parse(schemaBuffer.toString('utf-8'));
+  console.log('creating docker compose');
   const compose = {
     ...config,
     services: await processServices(project, config, options),

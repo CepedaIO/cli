@@ -3,13 +3,15 @@ import {
 	Tuple
 } from "../../../types";
 import {Env} from "../docker";
+import {Context} from "../ws-types";
+import {CommandManager} from "../docker/models/CommandManager";
 
-type CommandManager = {
-	run: string[];
+type ICommandManager = {
+	run: (command:string) => string;
 }
 
-type CommandFunctionArgs = ({
-	manager: CommandManager
+type CommandFunctionArgs = (params: {
+	manager: ICommandManager
 }) => string[]
 
 type CommandFunction = ({})
@@ -19,7 +21,7 @@ export function isProviderFactory(obj:any): obj is ServiceProvider {
 }
 
 export interface IServiceResolver {
-	getServiceConfig(env: Env): IServiceConfig;
+	getServiceConfig(context: Context): IServiceConfig;
 }
 
 export interface IManager {
@@ -72,74 +74,88 @@ export class EnvServiceProvider {
 		this.config.links = this.config.links.concat(services);
 		return this;
 	}
-	
+
 	mount(...dirs: ServiceProvider[]): EnvServiceProvider {
 		this.config.mounts = this.config.mounts.concat(dirs);
 		return this;
 	}
-	
+
 	run(...commands: string[]): EnvServiceProvider {
 		if(typeof this.config.commands === 'function') {
 			this.config.commands = this.config.commands({
-				manager: []
-			})
+                manager: {
+                    run: (command:string) => {
+                        return `npm run ${command}`;
+                    }
+                }
+            })
 		} else if(Array.isArray(this.config.commands)) {
 			this.config.commands = this.config.commands.concat(commands);
 		}
-		
-		
+
+
 		return this;
 	}
-	
+
 	init(...inits: string[]): EnvServiceProvider {
 		this.config.inits = this.config.inits.concat(inits);
-		
+
 		return this;
 	}
-	
+
 	port(...ports: Array<number | Tuple<number>>): EnvServiceProvider {
-		ports.forEach((port) => {
+        ports.forEach((port) => {
 			if(Array.isArray(port)) {
 				this.config.ports = this.config.ports.concat(port);
 			} else {
 				this.config.ports = this.config.ports.concat([port, port]);
 			}
 		});
-		
+
 		return this;
 	}
-	
+
 	include(...includes: Array<string>): EnvServiceProvider {
 		this.config.includes = this.config.includes.concat(includes);
-		
+
 		return this;
 	}
-	
+
 	variables(...variables: Tuple<string>[]): EnvServiceProvider {
 		this.config.variables = this.config.variables.concat(variables);
-		
+
 		return this;
 	}
-	
+
 	needsEntrypoint(): boolean {
 		return this.config.links.length > 0 || this.config.commands.length > 0;
 	}
 }
+
+const configKeys = [
+    'runtime',
+    'includes',
+    'ports',
+    'links',
+    'mounts',
+    'inits',
+    'commands'
+];
 
 export class ServiceProvider extends EnvServiceProvider implements IServiceResolver {
 	public name:string = '';
 	public environments: Map<Env, EnvServiceProvider> = new Map();
 	declare public config: IServiceConfig;
 	private merge: Array<keyof IEnvServiceConfig> = [
-		'variables',
-		'includes',
-		'ports',
-		'links',
-		'mounts',
-		'inits'
-	];
+        'variables',
+        'includes',
+        'ports',
+        'links',
+        'mounts',
+        'inits'
+    ];
 	public defaults: Partial<IServiceConfig> = {};
-	
+
 	constructor(
 		source: RepoInfo,
 		config: Partial<IEnvServiceConfig> = {},
@@ -149,73 +165,109 @@ export class ServiceProvider extends EnvServiceProvider implements IServiceResol
 		this.config.source = source;
 		this.defaults = defaults;
 	}
-	
-	getServiceConfig(env: Env): IServiceConfig {
-		if(!this.environments.has(env)) {
-			throw new Error(`Not environment configured for: ${env.name}`);
+
+	getServiceConfig(context: Context): IServiceConfig {
+		const env = context.env;
+
+        if(!this.environments.has(env)) {
+			throw new Error(`No environment configured for: ${env.name}`);
 		}
 		const envConfig = this.environments.get(env)!;
 		const globalConfig = this.config;
-		
-		return Object.entries(envConfig).reduce((result, [key, value]) => {
-			// @ts-ignore
-			if(this.merge.includes(key)) {
-				result[key] = value.concat(this.config[key]);
+        const manager = CommandManager.createFor(context.project.root);
+		return configKeys.reduce((result, key) => {
+            let value = envConfig.config[key];
+
+			if(typeof value === 'function') {
+                value = value({ manager, service: this });
+            }
+
+            //@ts-ignore
+            if(this.merge.includes(key)) {
+				result[key] = (value || []).concat(this.config[key] || this.defaults[key] || []);
 			} else {
-				result[key] = value || this.config[key];
+				result[key] = value || this.config[key] || this.defaults[key];
 			}
-			
+
+            if(typeof result[key] === "function") {
+                result[key] = result[key]({ manager });
+            }
+
+            if(Array.isArray(result[key]) && !result[key].length && typeof this.defaults[key] === 'function') {
+                result[key] = this.defaults[key]({ manager });
+            }
+
 			return result;
 		}, {} as IServiceConfig);
 	}
-	
-	env(env: Env, configure: (service: EnvServiceProvider) => void): ServiceProvider {
+
+	env(env: Env, configure: (params:{ service: EnvServiceProvider }) => void): ServiceProvider {
 		const service = new EnvServiceProvider();
-		configure(service);
+		configure({service});
 		this.environments.set(env, service);
-		
+
 		return this;
 	}
-	
+
 	runtime(runtime: string): ServiceProvider {
 		this.config.runtime = runtime;
-		
+
 		return this;
 	}
-	
+
 	workDir(workDir: string): ServiceProvider {
 		this.config.workDir = workDir;
-		
+
 		return this;
 	}
-	
+
 	needsEntrypoint(): boolean {
 		return super.needsEntrypoint() || this.config.links.length > 0 || this.config.commands.length > 0;
 	}
-	
-	// @ts-ignore
+
 	get<K extends keyof IEnvServiceConfig>(field: K, env:Env): ResolvedEnvServiceConfig[K] {
 		const envProvider = this.environments.get(env);
-		const providerValue = this.config[field];
+		let providerValue = this.config[field];
 		const envValue = envProvider && envProvider.config[field]
-		
+		let defaultValue = this.defaults[field];
+
 		if(envValue) {
-			if(this.merge.includes(field) && Array.isArray(providerValue)) {
-				// @ts-ignore
-				return providerValue.concat(envValue);
+			if(this.merge.includes(field) && Array.isArray(providerValue) && providerValue.length > 0) {
+				return (providerValue as any[]).concat(envValue);
 			}
-			
+
 			if(typeof envValue === 'function') {
-				return [];
-			} else if(Array.isArray(envValue)) {
-				return envValue;
+				return [] as any[];
+			} else if(Array.isArray(envValue) && envValue.length > 0) {
+				return envValue as any[];
 			}
 		}
-		
+
 		if(typeof providerValue === 'function') {
-			return [];
-		} else if(Array.isArray(providerValue)) {
-			return providerValue;
+			return providerValue({
+                manager: {
+                    run: (command: string) => {
+                        return `npm run ${command}`;
+                    }
+                }
+            }) as ResolvedEnvServiceConfig[K];
 		}
-	}
+
+        if((!providerValue || (Array.isArray(providerValue) && providerValue.length === 0)) && typeof defaultValue === 'function') {
+            return defaultValue({
+                manager: {
+                    run: (command:string) => {
+                        return `npm run ${command}`;
+                    }
+                }
+            }) as ResolvedEnvServiceConfig[K];
+        }
+
+        //@ts-ignore
+        return providerValue || defaultValue;
+    }
+
+    static is(obj:any): obj is ServiceProvider {
+        return obj.hasOwnProperty('name') && obj.hasOwnProperty('environments') && obj.hasOwnProperty('defaults') && obj.hasOwnProperty('config') && obj.hasOwnProperty('merge');
+    }
 }

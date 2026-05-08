@@ -24,11 +24,11 @@ export async function unpack(projectName?: string) {
   const rootPackageJSON = await getRootPackageJSON();
 
   log1('Installing dependencies...');
-  basePackageJSON.dependencies[rootPackageJSON.name] = isTestEnv ? join(rootDir, `cepedaio-cli-v${rootPackageJSON.version}.tgz`) : `^${rootPackageJSON.version}`;
+  basePackageJSON.dependencies[rootPackageJSON.name] = isTestEnv ? rootDir : `^${rootPackageJSON.version}`;
   await writeFile(`${project.root}/package.json`, JSON.stringify(basePackageJSON, null, 2));
   await writeFile(`${project.root}/tsconfig.json`, JSON.stringify(baseTsconfigJSON, null, 2));
 
-  await run('yarn', ['install'], {
+  await run('npm', ['install'], {
     cwd: project.root,
     shell: true
   });

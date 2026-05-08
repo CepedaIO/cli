@@ -91,7 +91,7 @@ export class StandardTester {
         'services',
         'package.json',
         'tsconfig.json',
-        'yarn.lock',
+        'package-lock.json',
       ], this.suiteDir);
 
       const files = await readdir(join(this.suiteDir, 'services'));
@@ -103,7 +103,7 @@ export class StandardTester {
 
           expectExists([
             `node_modules`,
-            `yarn.lock`
+            `package-lock.json`
           ], servicePath);
         }
       });
@@ -233,7 +233,6 @@ export class StandardTester {
 
       await user.test([
         ['Are you sure you want to delete?', 'y'],
-        'Stopping project!',
         `${this.suiteName} has been removed!`,
         ['Would you also like to delete the project\'s directory?', 'n']
       ]);

@@ -39,10 +39,6 @@ async function createSources(project:iProject, composer:Composer) {
   }
 
   for(const [serviceName, source] of composer.getSources().entries()) {
-    if(project.sources.initialized.includes(serviceName)) {
-      break;
-    }
-
     const serviceRoot = `${project.services.root}/${serviceName}`;
 
     if(!existsSync(serviceRoot)) {
@@ -62,7 +58,7 @@ async function createSources(project:iProject, composer:Composer) {
           await runCommand(init);
         }
       } else if(source.init) {
-        await runCommand(source.init);
+        await runCommand(source.init as string);
       }
 
       project.sources.initialized.push(serviceName);

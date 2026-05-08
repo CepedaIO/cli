@@ -9,10 +9,10 @@ interface IEnvConfig {
 }
 
 export class Env {
+  public name: string;
   config: IEnvConfig;
   
   constructor(
-    public name: string,
     config: Partial<IEnvConfig> = {}
   ) {
     this.config = {
@@ -41,6 +41,10 @@ export class Env {
   }
   
   extend(newName:string, config: Partial<IEnvConfig> = {}) {
-    return new Env(newName, Object.assign(this.config, config));
+    return new Env(Object.assign(this.config, config));
+  }
+
+  static is(obj:any): obj is Env {
+      return obj.hasOwnProperty('name') && obj.hasOwnProperty('config') && obj.config.hasOwnProperty('excludes') && obj.config.hasOwnProperty('includes') && obj.config.hasOwnProperty('variables');
   }
 }

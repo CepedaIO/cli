@@ -26,35 +26,34 @@ function needsRebuild(project: iProject, hash: string) {
 }
 
 export async function generateStartFiles(project: iProject, options: StartOptions) {
-  const file = await readFile(composeProviderTSURL(project));
-  const hashSum = createHash('sha256');
-  hashSum.update(file);
-  const hash = hashSum.digest('hex');
-  console.log(`Hash: ${chalk.blueBright(hash)}`);
+    const file = await readFile(composeProviderTSURL(project));
+    const hashSum = createHash('sha256');
+    hashSum.update(file);
+    const hash = hashSum.digest('hex');
+    console.log(`Hash: ${chalk.blueBright(hash)}`);
 
-  if(needsRebuild(project, hash) || options.build) {
-    console.log('Compose changed, building environment');
+    if(needsRebuild(project, hash) || options.build) {
+        console.log('Compose changed, building environment');
 
-    if(existsSync(distDir(project.root))) {
-      await rm(distDir(project.root), { recursive: true });
+        if(existsSync(distDir(project.root))) {
+            await rm(distDir(project.root), { recursive: true });
+        }
+
+        await run('npm', ['run', 'build'], { cwd: project.root, shell: true });
+
+        project.hash = hash;
+        await Project.save(project);
+        await initializeProject(project);
+
+        const { app: { environments, providers } } = definitionsForProject(project);
+        const env = environments.find((env) => env.name === options.env);
+        if(!env) throw new Error(`No environment defined for: ${options.env}`);
+
+        const dockerResolver = new DockerResolver();
+        await dockerResolver.generate(providers, {
+            env,
+            project,
+            linkProvider: new NodeResolver()
+        });
     }
-
-    await run('yarn', ['build'], { cwd: project.root, shell: true});
-    
-    project.hash = hash;
-    await Project.save(project);
-    await initializeProject(project);
-
-    const { app: { environments, providers } } = definitionsForProject(project);
-    const env = environments.find((env) => env.name === options.env);
-    
-    if(!env) throw new Error(`No environment defined for: ${options.env}`);
-    
-    const dockerResolver = new DockerResolver();
-    await dockerResolver.generate(providers, {
-      env,
-      project,
-      linkProvider: new NodeResolver()
-    });
-  }
 }

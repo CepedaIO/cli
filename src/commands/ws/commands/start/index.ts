@@ -10,8 +10,12 @@ export async function start(serviceName?:string, projectName?: string, options?:
   const project = await getProject(projectName, serviceName);
 
   options.env = 'local';
-
-  await generateStartFiles(project, options);
+  try {
+      await generateStartFiles(project, options);
+  } catch(e) {
+      console.log(`${e.message}`);
+      throw e;
+  }
 
   if(serviceExists(serviceName, project)) {
     /**

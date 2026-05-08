@@ -22,7 +22,7 @@ export async function createProjectFiles(answers: WorkstationAnswers) {
   await writeFile(`${root}/package.json`, JSON.stringify(packageJSON, null, 2));
   await writeFile(`${root}/tsconfig.json`, JSON.stringify(tsconfigJSON, null, 2));
 
-  await run('yarn', ['install'], {
+  await run('npm', ['install'], {
     cwd: root,
     shell: true
   });

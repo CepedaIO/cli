@@ -40,7 +40,7 @@ async function recursiveAskForRepo(answers: RepoInfo[] = []): Promise<RepoInfo[]
       type: 'input',
       name: 'init',
       message: 'Initialization command:',
-      default: 'yarn install'
+      default: 'npm install'
     }
   ])
 
